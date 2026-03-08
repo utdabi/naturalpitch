@@ -34,7 +34,7 @@ Rules:
 - clarity, relevance, credibility, cta, tone are each 0-20
 - red_flags: short phrases identifying weaknesses (1-4 items)
 - rewrite_direct: a rewritten version that is direct and professional
-- rewrite_friendly: a rewritten version that is warm and conversational
+- rewrite_friendly: a rewritten version that is warm and conversational. For the Friendly rewrite, the CTA must be a soft, specific question the reader can answer with one word or one click. Never use "send my resume" or "pick your brain" as a CTA.
 - hooks: 3 alternative opening sentences
 - Return ONLY the JSON object, no markdown, no explanation`;
 
