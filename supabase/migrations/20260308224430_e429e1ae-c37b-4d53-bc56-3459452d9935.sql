@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN user_background text DEFAULT '' NOT NULL;
