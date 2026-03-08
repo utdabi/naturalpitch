@@ -24,7 +24,26 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
+  const { user } = useAuth();
+  const [initial, setInitial] = useState("U");
 
+  useEffect(() => {
+    if (!user) return;
+    // Try meta data first, then fetch profile
+    const metaName = user.user_metadata?.full_name;
+    if (metaName) {
+      setInitial(metaName.charAt(0).toUpperCase());
+      return;
+    }
+    supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.full_name) setInitial(data.full_name.charAt(0).toUpperCase());
+      });
+  }, [user]);
   return (
     <Sidebar collapsible="none" className="border-r-0">
       <SidebarHeader className="px-5 py-5">
