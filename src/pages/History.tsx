@@ -22,7 +22,7 @@ const outcomeColors: Record<Outcome, string> = {
 };
 
 interface GradeRow {
-  id: number;
+  id: string;
   date: string;
   persona: string;
   score: number;
@@ -44,6 +44,7 @@ const personaColors: Record<string, string> = {
   Founder: "bg-[hsl(0,70%,55%)] text-white",
   HR: "bg-[hsl(160,60%,40%)] text-white",
   Peer: "bg-primary text-primary-foreground",
+  Investor: "bg-[hsl(270,50%,55%)] text-white",
 };
 
 const mockRows: GradeRow[] = [
