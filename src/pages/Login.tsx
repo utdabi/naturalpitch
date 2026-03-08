@@ -20,13 +20,21 @@ const Login = () => {
 
     try {
       if (isSignUp) {
+        if (!fullName.trim()) {
+          toast({ title: "Please enter your full name", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName.trim() },
+          },
         });
         if (error) throw error;
-        toast({ title: "Check your email for a confirmation link!" });
+        navigate("/");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
