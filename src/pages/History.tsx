@@ -47,54 +47,6 @@ const personaColors: Record<string, string> = {
   Investor: "bg-[hsl(270,50%,55%)] text-white",
 };
 
-const mockRows: GradeRow[] = [
-  {
-    id: 1, date: "Mar 5, 2026", persona: "Hiring Manager", score: 68, outcome: "Pending",
-    message: "Hi Sarah, I saw your post about scaling engineering teams...",
-    clarity: 15, relevance: 11, credibility: 12, cta: 10, tone: 20,
-    red_flags: ["Vague CTA", "No personalisation"],
-    rewrite_direct: "I saw your post about scaling engineering teams and wanted to reach out.",
-    rewrite_friendly: "I loved your recent post on scaling engineering teams!",
-    hooks: ["Your recent post resonated with me.", "I've been following your team's growth.", "As a DevOps engineer, I noticed..."],
-  },
-  {
-    id: 2, date: "Mar 4, 2026", persona: "Founder", score: 85, outcome: "Replied",
-    message: "Hey Alex, congrats on the Series A! I'd love to chat about how my background in growth marketing could help...",
-    clarity: 18, relevance: 17, credibility: 16, cta: 16, tone: 18,
-    red_flags: ["Slightly generic opener"],
-    rewrite_direct: "Congrats on the Series A. My growth marketing experience could directly support your next phase.",
-    rewrite_friendly: "Huge congrats on the Series A! I'd love to explore how my growth marketing background might fit.",
-    hooks: ["Your Series A announcement caught my eye.", "I've worked with 3 post-Series A startups.", "The growth challenges you mentioned..."],
-  },
-  {
-    id: 3, date: "Mar 3, 2026", persona: "HR", score: 72, outcome: "Ignored",
-    message: "Hello, I'm interested in the open DevOps position at your company...",
-    clarity: 16, relevance: 14, credibility: 14, cta: 12, tone: 16,
-    red_flags: ["Too formal", "Missing hook"],
-    rewrite_direct: "I noticed your open DevOps role and believe my 8 years of experience align well.",
-    rewrite_friendly: "Hi! I came across your DevOps opening and got excited — here's why.",
-    hooks: ["Your job posting stood out because...", "I've been admiring your engineering culture.", "As someone who's scaled infra at..."],
-  },
-  {
-    id: 4, date: "Mar 2, 2026", persona: "Peer", score: 81, outcome: "Booked Call",
-    message: "Hey Jamie, we met briefly at the DevOps meetup last week...",
-    clarity: 17, relevance: 16, credibility: 15, cta: 15, tone: 18,
-    red_flags: ["Could be more specific about shared interests"],
-    rewrite_direct: "Great meeting you at the DevOps meetup. I'd love to continue our conversation about CI/CD pipelines.",
-    rewrite_friendly: "It was awesome chatting at the meetup! Would love to grab coffee and dig deeper into those CI/CD ideas.",
-    hooks: ["Our conversation at the meetup got me thinking...", "Following up on the CI/CD topic we discussed.", "I really enjoyed your take on..."],
-  },
-  {
-    id: 5, date: "Mar 1, 2026", persona: "Hiring Manager", score: 55, outcome: "Pending",
-    message: "Hi, I would like to apply for a position at your company...",
-    clarity: 12, relevance: 10, credibility: 10, cta: 8, tone: 15,
-    red_flags: ["No personalisation", "Weak CTA", "Generic opener", "No value prop"],
-    rewrite_direct: "I'm reaching out about your open engineering role. Here's what I bring to the table.",
-    rewrite_friendly: "Hi! I stumbled across your team's work and was really inspired — here's a bit about me.",
-    hooks: ["Your company's recent work on...", "I noticed you're hiring for...", "After reading about your team's approach to..."],
-  },
-];
-
 function ScoreBar({ name, score, max }: { name: string; score: number; max: number }) {
   const pct = Math.round((score / max) * 100);
   const color = pct >= 80 ? "bg-[hsl(160,60%,40%)]" : pct >= 60 ? "bg-primary" : pct >= 40 ? "bg-[hsl(45,90%,50%)]" : "bg-[hsl(25,90%,55%)]";
@@ -109,11 +61,47 @@ function ScoreBar({ name, score, max }: { name: string; score: number; max: numb
   );
 }
 
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 const History = () => {
-  const [rows, setRows] = useState(mockRows);
+  const [rows, setRows] = useState<GradeRow[]>([]);
   const [selected, setSelected] = useState<GradeRow | null>(null);
 
-  const updateOutcome = (id: number, outcome: Outcome) => {
+  useEffect(() => {
+    const fetchRows = async () => {
+      const { data } = await supabase
+        .from("grade_results")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (data) {
+        setRows(
+          data.map((r) => ({
+            id: r.id,
+            date: formatDate(r.created_at),
+            persona: r.persona,
+            score: r.overall_score,
+            outcome: "Pending" as Outcome,
+            message: r.message || "",
+            clarity: r.clarity || 0,
+            relevance: r.relevance || 0,
+            credibility: r.credibility || 0,
+            cta: r.cta || 0,
+            tone: r.tone || 0,
+            red_flags: r.red_flags || [],
+            rewrite_direct: r.rewrite_direct || "",
+            rewrite_friendly: r.rewrite_friendly || "",
+            hooks: r.hooks || [],
+          }))
+        );
+      }
+    };
+    fetchRows();
+  }, []);
+
+  const updateOutcome = (id: string, outcome: Outcome) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, outcome } : r)));
   };
 
