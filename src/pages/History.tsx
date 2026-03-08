@@ -68,10 +68,11 @@ function formatDate(dateStr: string) {
 const History = () => {
   const [rows, setRows] = useState<GradeRow[]>([]);
   const [selected, setSelected] = useState<GradeRow | null>(null);
+  const [patterns, setPatterns] = useState<{ avgScore: number; replyRate: number; bestPersona: string } | null>(null);
+  const [outcomeCount, setOutcomeCount] = useState(0);
 
   useEffect(() => {
-    const fetchRows = async () => {
-      // Fetch grades and their latest outcome
+    const fetchData = async () => {
       const { data: grades } = await supabase
         .from("grade_results")
         .select("*")
@@ -82,13 +83,37 @@ const History = () => {
         .select("grade_result_id, outcome")
         .order("created_at", { ascending: false });
 
-      // Build a map of grade_result_id -> latest outcome
+      // Build outcome map (latest per grade)
       const outcomeMap: Record<string, Outcome> = {};
       if (outcomes) {
         for (const o of outcomes) {
           if (!outcomeMap[o.grade_result_id]) {
             outcomeMap[o.grade_result_id] = o.outcome as Outcome;
           }
+        }
+        setOutcomeCount(outcomes.length);
+
+        // Calculate patterns if 10+ outcome logs
+        if (outcomes.length >= 10 && grades && grades.length > 0) {
+          const avgScore = Math.round(grades.reduce((s, g) => s + g.overall_score, 0) / grades.length);
+          const repliedCount = outcomes.filter((o) => o.outcome === "Replied").length;
+          const replyRate = Math.round((repliedCount / outcomes.length) * 100);
+
+          // Best persona by avg score
+          const personaScores: Record<string, { total: number; count: number }> = {};
+          for (const g of grades) {
+            if (!personaScores[g.persona]) personaScores[g.persona] = { total: 0, count: 0 };
+            personaScores[g.persona].total += g.overall_score;
+            personaScores[g.persona].count += 1;
+          }
+          let bestPersona = "";
+          let bestAvg = -1;
+          for (const [p, v] of Object.entries(personaScores)) {
+            const avg = v.total / v.count;
+            if (avg > bestAvg) { bestAvg = avg; bestPersona = p; }
+          }
+
+          setPatterns({ avgScore, replyRate, bestPersona });
         }
       }
 
@@ -114,7 +139,7 @@ const History = () => {
         );
       }
     };
-    fetchRows();
+    fetchData();
   }, []);
 
   const updateOutcome = async (id: string, outcome: Outcome) => {
