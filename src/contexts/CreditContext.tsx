@@ -4,17 +4,19 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface CreditContextType {
   credits: number;
-  useCredit: () => Promise<boolean>;
+  useCredits: (amount?: number) => Promise<boolean>;
   loading: boolean;
 }
 
 const CreditContext = createContext<CreditContextType>({
   credits: 0,
-  useCredit: async () => false,
+  useCredits: async () => false,
   loading: true,
 });
 
-export const useCredits = () => useContext(CreditContext);
+export const useCreditContext = () => useContext(CreditContext);
+// Keep backward-compatible alias
+export const useCredits = useCreditContext;
 
 export function CreditProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
@@ -44,9 +46,9 @@ export function CreditProvider({ children }: { children: ReactNode }) {
     fetchCredits();
   }, [user]);
 
-  const useCredit = useCallback(async () => {
-    if (!user || credits <= 0) return false;
-    const next = credits - 1;
+  const useCreditsAmount = useCallback(async (amount: number = 1) => {
+    if (!user || credits < amount) return false;
+    const next = credits - amount;
 
     const { error } = await supabase
       .from("user_credits")
@@ -59,7 +61,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   }, [user, credits]);
 
   return (
-    <CreditContext.Provider value={{ credits, useCredit, loading }}>
+    <CreditContext.Provider value={{ credits, useCredits: useCreditsAmount, loading }}>
       {children}
     </CreditContext.Provider>
   );
