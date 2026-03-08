@@ -30,7 +30,7 @@ export type Database = {
           rewrite_direct: string | null
           rewrite_friendly: string | null
           tone: number | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           clarity?: number | null
@@ -47,7 +47,7 @@ export type Database = {
           rewrite_direct?: string | null
           rewrite_friendly?: string | null
           tone?: number | null
-          user_id?: string | null
+          user_id?: string
         }
         Update: {
           clarity?: number | null
@@ -64,7 +64,7 @@ export type Database = {
           rewrite_direct?: string | null
           rewrite_friendly?: string | null
           tone?: number | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: []
       }
