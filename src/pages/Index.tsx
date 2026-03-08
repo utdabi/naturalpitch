@@ -241,9 +241,9 @@ const Index = () => {
     <>
       <div className="flex h-screen min-w-0">
         {/* Left Pane */}
-        <div className="flex-1 min-w-0 p-6 lg:p-8 overflow-auto">
+        <div className="flex-1 min-w-0 p-6 lg:p-8 overflow-auto flex flex-col">
           <h1 className="text-2xl font-bold text-foreground mb-6">New Pitch</h1>
-          <div className="space-y-4">
+          <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div>
               <label className="text-sm font-semibold text-foreground mb-2 block">Target Persona</label>
               <Select value={persona} onValueChange={setPersona}>
@@ -270,7 +270,7 @@ const Index = () => {
                 value={deepContext}
                 onChange={(e) => setDeepContext(e.target.value)}
                 placeholder="Paste their LinkedIn About section, a recent post, or their job description here..."
-                className="min-h-[120px] bg-card border-border border resize-none text-foreground placeholder:text-muted-foreground"
+                className="flex-[2] min-h-0 bg-card border-border border resize-none text-foreground placeholder:text-muted-foreground"
               />
             )}
 
@@ -278,7 +278,7 @@ const Index = () => {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Paste your LinkedIn message here..."
-              className="min-h-[280px] lg:min-h-[340px] bg-card border-primary/40 border-2 resize-none text-foreground placeholder:text-muted-foreground"
+              className={`${deepContextOn ? "flex-[3]" : "flex-1"} min-h-0 bg-card border-primary/40 border-2 resize-none text-foreground placeholder:text-muted-foreground`}
             />
 
             <Button
