@@ -63,17 +63,13 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="px-4 pb-4">
-        <div className="mb-3">
-          <span className="inline-block rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
-            95 Credits
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <Settings className="h-5 w-5 text-sidebar-foreground/60" />
-          <div className="h-9 w-9 rounded-full bg-sidebar-accent overflow-hidden flex items-center justify-center">
-            <span className="text-xs text-sidebar-foreground">U</span>
-          </div>
+      <SidebarFooter className="px-4 pb-4 items-center">
+        <span className="inline-block rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
+          95 Credits
+        </span>
+        <Settings className="h-5 w-5 text-sidebar-foreground/60" />
+        <div className="h-9 w-9 rounded-full bg-sidebar-accent overflow-hidden flex items-center justify-center">
+          <span className="text-xs text-sidebar-foreground">U</span>
         </div>
       </SidebarFooter>
     </Sidebar>
