@@ -42,8 +42,9 @@ ${deep_context}
 For the Direct and Friendly rewrites, the first sentence must reference something specific from the TARGET_CONTEXT. Never use generic openers like 'I've been following your work' when specific context is available.`;
     }
 
-    // Voice calibration: fetch successful messages for the authenticated user
+    // Voice calibration & sender background: fetch data for the authenticated user
     let voiceCalibrationBlock = "";
+    let senderBackgroundBlock = "";
     const authHeader = req.headers.get("authorization");
     if (authHeader) {
       const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -52,13 +53,22 @@ For the Direct and Friendly rewrites, the first sentence must reference somethin
         global: { headers: { Authorization: authHeader } },
       });
 
-      const { data: voiceRows } = await supabase
-        .from("outcome_logs")
-        .select("grade_result_id, grade_results!inner(rewrite_direct)")
-        .in("outcome", ["REPLIED", "BOOKED"])
-        .order("created_at", { ascending: false })
-        .limit(3);
+      // Fetch voice examples and sender background in parallel
+      const [voiceResult, profileResult] = await Promise.all([
+        supabase
+          .from("outcome_logs")
+          .select("grade_result_id, grade_results!inner(rewrite_direct)")
+          .in("outcome", ["REPLIED", "BOOKED"])
+          .order("created_at", { ascending: false })
+          .limit(3),
+        supabase
+          .from("profiles")
+          .select("user_background")
+          .single(),
+      ]);
 
+      // Voice calibration
+      const voiceRows = voiceResult.data;
       if (voiceRows && voiceRows.length > 0) {
         const examples = voiceRows
           .map((r: any) => r.grade_results?.rewrite_direct)
@@ -75,6 +85,18 @@ ${examples}
 </VOICE_EXAMPLES>`;
         }
       }
+
+      // Sender background
+      const userBackground = profileResult.data?.user_background;
+      if (typeof userBackground === "string" && userBackground.trim().length > 0) {
+        senderBackgroundBlock = `
+
+SENDER CONTEXT: The person sending this message has the following background. Reference specific credentials naturally when they strengthen the message — do not list them all.
+
+<SENDER_BACKGROUND>
+${userBackground}
+</SENDER_BACKGROUND>`;
+      }
     }
 
     const systemPrompt = `You are an outreach coach. Grade the following LinkedIn message for the persona ${persona}. Return valid JSON only with this exact structure:
@@ -87,7 +109,7 @@ Rules:
 - rewrite_direct: a rewritten version that is direct and professional
 - rewrite_friendly: a rewritten version that is warm and conversational. For the Friendly rewrite, the CTA must be a soft, specific question the reader can answer with one word or one click. Never use "send my resume" or "pick your brain" as a CTA.
 - hooks: 3 alternative opening sentences
-- Return ONLY the JSON object, no markdown, no explanation${deepContextBlock}${voiceCalibrationBlock}`;
+- Return ONLY the JSON object, no markdown, no explanation${deepContextBlock}${senderBackgroundBlock}${voiceCalibrationBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -129,11 +151,9 @@ Rules:
       throw new Error("No content in AI response");
     }
 
-    // Parse the JSON from the response (strip markdown fences if present)
     const jsonStr = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const scorecard = JSON.parse(jsonStr);
 
-    // Check for injection-related red flags
     const blockedWords = ["jailbreak", "injection", "security", "policy violation"];
     const hasInjection = (scorecard.red_flags || []).some((flag: string) =>
       blockedWords.some((word) => flag.toLowerCase().includes(word))
