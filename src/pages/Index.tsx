@@ -289,7 +289,7 @@ const Index = () => {
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Grading…</>
               ) : (
-                "Grade & Improve (1 credit)"
+                `Grade & Improve (${creditCost} credit${creditCost !== 1 ? "s" : ""})`
               )}
             </Button>
           </div>
