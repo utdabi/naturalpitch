@@ -140,13 +140,17 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
 
 const Index = () => {
   const location = useLocation();
-  const { credits, useCredit } = useCredits();
+  const { credits, useCredits: deductCredits } = useCredits();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
   const [message, setMessage] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [injectionError, setInjectionError] = useState<string | null>(null);
+  const [deepContextOn, setDeepContextOn] = useState(false);
+  const [deepContext, setDeepContext] = useState("");
+
+  const creditCost = deepContextOn ? 5 : 1;
 
   useEffect(() => {
     const state = location.state as { message?: string; persona?: string } | null;
@@ -163,7 +167,7 @@ const Index = () => {
       toast({ title: "Please select a target persona", variant: "destructive" });
       return;
     }
-    if (credits <= 0) {
+    if (credits < creditCost) {
       setShowUpgrade(true);
       return;
     }
@@ -174,7 +178,11 @@ const Index = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("grade-message", {
-        body: { message, persona },
+        body: {
+          message,
+          persona,
+          deep_context: deepContextOn ? deepContext : null,
+        },
       });
 
       if (error) {
@@ -204,7 +212,7 @@ const Index = () => {
 
       const result = data as Scorecard;
       setScorecard(result);
-      await useCredit();
+      await deductCredits(creditCost);
 
       // Save to database
       await supabase.from("grade_results").insert({
@@ -253,9 +261,18 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Switch />
+              <Switch checked={deepContextOn} onCheckedChange={setDeepContextOn} />
               <label className="text-sm text-foreground">Deep Context (5 credits)</label>
             </div>
+
+            {deepContextOn && (
+              <Textarea
+                value={deepContext}
+                onChange={(e) => setDeepContext(e.target.value)}
+                placeholder="Paste their LinkedIn About section, a recent post, or their job description here..."
+                className="min-h-[120px] bg-card border-border border resize-none text-foreground placeholder:text-muted-foreground"
+              />
+            )}
 
             <Textarea
               value={message}
@@ -272,7 +289,7 @@ const Index = () => {
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Grading…</>
               ) : (
-                "Grade & Improve (1 credit)"
+                `Grade & Improve (${creditCost} credit${creditCost !== 1 ? "s" : ""})`
               )}
             </Button>
           </div>
