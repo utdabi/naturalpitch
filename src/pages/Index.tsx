@@ -212,7 +212,7 @@ const Index = () => {
 
       const result = data as Scorecard;
       setScorecard(result);
-      await useCredit();
+      await deductCredits(creditCost);
 
       // Save to database
       await supabase.from("grade_results").insert({
