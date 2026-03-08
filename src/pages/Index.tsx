@@ -152,6 +152,11 @@ const Index = () => {
   const [deepContext, setDeepContext] = useState("");
 
   const creditCost = deepContextOn ? 5 : 1;
+  const { maybeStartTour } = useTour();
+
+  useEffect(() => {
+    maybeStartTour();
+  }, [maybeStartTour]);
 
   useEffect(() => {
     const state = location.state as { message?: string; persona?: string } | null;
@@ -248,7 +253,7 @@ const Index = () => {
             <div>
               <label className="text-sm font-semibold text-foreground mb-2 block">Target Persona</label>
               <Select value={persona} onValueChange={setPersona}>
-                <SelectTrigger className="w-full bg-card border-border">
+                <SelectTrigger id="tour-persona" className="w-full bg-card border-border">
                   <SelectValue placeholder="Select target (HR, Founder, Peer...)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -261,7 +266,7 @@ const Index = () => {
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div id="tour-deep-context" className="flex items-center gap-2">
               <Switch checked={deepContextOn} onCheckedChange={setDeepContextOn} />
               <label className="text-sm text-foreground">Deep Context (5 credits)</label>
             </div>
@@ -276,6 +281,7 @@ const Index = () => {
             )}
 
             <Textarea
+              id="tour-message"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder="Paste your LinkedIn message here..."
@@ -283,6 +289,7 @@ const Index = () => {
             />
 
             <Button
+              id="tour-grade"
               onClick={handleGrade}
               disabled={loading}
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base rounded-lg"
