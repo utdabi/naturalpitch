@@ -1,6 +1,9 @@
 import { Pencil, Folder, BarChart3, Settings } from "lucide-react";
 import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Sidebar,
   SidebarContent,
