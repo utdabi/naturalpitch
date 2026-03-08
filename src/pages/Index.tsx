@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { ClipboardCheck, Copy, Flag, Loader2 } from "lucide-react";
 import {
   Select,
