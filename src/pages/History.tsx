@@ -71,19 +71,35 @@ const History = () => {
 
   useEffect(() => {
     const fetchRows = async () => {
-      const { data } = await supabase
+      // Fetch grades and their latest outcome
+      const { data: grades } = await supabase
         .from("grade_results")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (data) {
+      const { data: outcomes } = await supabase
+        .from("outcome_logs")
+        .select("grade_result_id, outcome")
+        .order("created_at", { ascending: false });
+
+      // Build a map of grade_result_id -> latest outcome
+      const outcomeMap: Record<string, Outcome> = {};
+      if (outcomes) {
+        for (const o of outcomes) {
+          if (!outcomeMap[o.grade_result_id]) {
+            outcomeMap[o.grade_result_id] = o.outcome as Outcome;
+          }
+        }
+      }
+
+      if (grades) {
         setRows(
-          data.map((r) => ({
+          grades.map((r) => ({
             id: r.id,
             date: formatDate(r.created_at),
             persona: r.persona,
             score: r.overall_score,
-            outcome: "Pending" as Outcome,
+            outcome: outcomeMap[r.id] || ("Pending" as Outcome),
             message: r.message || "",
             clarity: r.clarity || 0,
             relevance: r.relevance || 0,
@@ -101,8 +117,12 @@ const History = () => {
     fetchRows();
   }, []);
 
-  const updateOutcome = (id: string, outcome: Outcome) => {
+  const updateOutcome = async (id: string, outcome: Outcome) => {
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, outcome } : r)));
+    await supabase.from("outcome_logs").insert({
+      grade_result_id: id,
+      outcome,
+    });
   };
 
   return (
