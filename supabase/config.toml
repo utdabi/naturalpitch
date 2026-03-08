@@ -1,0 +1,4 @@
+project_id = "qrcxnmsgccacqauzavbl"
+
+[functions.grade-message]
+verify_jwt = false

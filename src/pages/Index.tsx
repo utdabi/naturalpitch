@@ -11,34 +11,35 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-const mockScorecard = {
-  overall: 68,
-  label: "Needs improvement",
-  subscores: [
-    { name: "Clarity", score: 15, max: 20, color: "bg-primary" },
-    { name: "Relevance", score: 11, max: 20, color: "bg-[hsl(45,90%,50%)]" },
-    { name: "Credibility", score: 12, max: 20, color: "bg-[hsl(45,90%,50%)]" },
-    { name: "CTA", score: 10, max: 20, color: "bg-[hsl(25,90%,55%)]" },
-    { name: "Tone", score: 20, max: 20, color: "bg-[hsl(160,60%,40%)]" },
-  ],
-  flags: ["Vague CTA", "No personalisation"],
-  rewrites: [
-    {
-      title: "Option 1: Direct",
-      text: "I saw your post about scaling engineering teams and wanted to reach out. I have 8 years of experience in DevOps and would love to connect and learn more about opportunities at your company.",
-    },
-    {
-      title: "Option 2: Friendly",
-      text: "I saw your post about scaling engineering teams and wanted to reach out. I have 8 years of experience in DevOps and would love to connect and learn more about opportunities. Do you have time for a quick call next week?",
-    },
-  ],
-  hooks: [
-    "Such your hook about scaling engineering teams out.",
-    "However, a short cooking courses to footmarks.",
-    "There's we spoken sentences and opportunities to today.",
-  ],
-};
+interface Scorecard {
+  overall: number;
+  clarity: number;
+  relevance: number;
+  credibility: number;
+  cta: number;
+  tone: number;
+  red_flags: string[];
+  rewrite_direct: string;
+  rewrite_friendly: string;
+  hooks: string[];
+}
+
+function getBarColor(score: number, max: number) {
+  const pct = score / max;
+  if (pct >= 0.8) return "bg-[hsl(160,60%,40%)]";
+  if (pct >= 0.6) return "bg-primary";
+  if (pct >= 0.4) return "bg-[hsl(45,90%,50%)]";
+  return "bg-[hsl(25,90%,55%)]";
+}
+
+function getLabel(score: number) {
+  if (score >= 80) return "Excellent";
+  if (score >= 60) return "Needs improvement";
+  if (score >= 40) return "Weak";
+  return "Poor";
+}
 
 function ScoreBar({ name, score, max, color }: { name: string; score: number; max: number; color: string }) {
   const pct = Math.round((score / max) * 100);
@@ -55,33 +56,43 @@ function ScoreBar({ name, score, max, color }: { name: string; score: number; ma
   );
 }
 
-function ScorecardPanel() {
+function ScorecardPanel({ data }: { data: Scorecard }) {
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copied to clipboard" });
   };
 
+  const subscores = [
+    { name: "Clarity", score: data.clarity, max: 20 },
+    { name: "Relevance", score: data.relevance, max: 20 },
+    { name: "Credibility", score: data.credibility, max: 20 },
+    { name: "CTA", score: data.cta, max: 20 },
+    { name: "Tone", score: data.tone, max: 20 },
+  ];
+
+  const rewrites = [
+    { title: "Option 1: Direct", text: data.rewrite_direct },
+    { title: "Option 2: Friendly", text: data.rewrite_friendly },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* Overall Score */}
       <div className="flex items-center gap-4">
-        <span className="text-7xl font-bold text-foreground leading-none">{mockScorecard.overall}</span>
+        <span className="text-7xl font-bold text-foreground leading-none">{data.overall}</span>
         <div>
           <div className="text-lg font-semibold text-foreground">Overall Score</div>
-          <div className="text-sm text-muted-foreground">{mockScorecard.label}</div>
+          <div className="text-sm text-muted-foreground">{getLabel(data.overall)}</div>
         </div>
       </div>
 
-      {/* Subscores */}
       <div className="space-y-2.5">
-        {mockScorecard.subscores.map((s) => (
-          <ScoreBar key={s.name} {...s} />
+        {subscores.map((s) => (
+          <ScoreBar key={s.name} {...s} color={getBarColor(s.score, s.max)} />
         ))}
       </div>
 
-      {/* Flags */}
       <div className="flex gap-2 flex-wrap">
-        {mockScorecard.flags.map((f) => (
+        {data.red_flags.map((f) => (
           <span key={f} className="inline-flex items-center gap-1.5 rounded-md bg-destructive/10 px-3 py-1 text-xs font-medium text-destructive">
             <Flag className="h-3 w-3" />
             {f}
@@ -89,11 +100,10 @@ function ScorecardPanel() {
         ))}
       </div>
 
-      {/* Rewrites */}
       <div>
         <h3 className="text-lg font-bold text-foreground mb-3">Rewrites</h3>
         <div className="space-y-3">
-          {mockScorecard.rewrites.map((r) => (
+          {rewrites.map((r) => (
             <div key={r.title} className="rounded-lg border border-border bg-card p-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="font-semibold text-sm text-foreground">{r.title}</span>
@@ -107,11 +117,10 @@ function ScorecardPanel() {
         </div>
       </div>
 
-      {/* Alternative Openers */}
       <div className="rounded-lg border border-border bg-card p-4">
         <h4 className="font-semibold text-sm text-foreground mb-2">Alternative Openers</h4>
         <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
-          {mockScorecard.hooks.map((h, i) => (
+          {data.hooks.map((h, i) => (
             <li key={i}>{h}</li>
           ))}
         </ul>
@@ -122,15 +131,40 @@ function ScorecardPanel() {
 
 const Index = () => {
   const [loading, setLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
+  const [scorecard, setScorecard] = useState<Scorecard | null>(null);
+  const [persona, setPersona] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleGrade = () => {
+  const handleGrade = async () => {
+    if (!message.trim()) {
+      toast({ title: "Please paste a message first", variant: "destructive" });
+      return;
+    }
+    if (!persona) {
+      toast({ title: "Please select a target persona", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
-    setShowResults(false);
-    setTimeout(() => {
+    setScorecard(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("grade-message", {
+        body: { message, persona },
+      });
+
+      if (error) throw error;
+      setScorecard(data as Scorecard);
+    } catch (e: any) {
+      console.error("Grading failed:", e);
+      toast({
+        title: "Grading failed",
+        description: e?.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-      setShowResults(true);
-    }, 2000);
+    }
   };
 
   return (
@@ -141,16 +175,16 @@ const Index = () => {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-semibold text-foreground mb-2 block">Target Persona</label>
-            <Select>
+            <Select value={persona} onValueChange={setPersona}>
               <SelectTrigger className="w-full bg-card border-border">
                 <SelectValue placeholder="Select target (HR, Founder, Peer...)" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="hr">HR</SelectItem>
-                <SelectItem value="founder">Founder</SelectItem>
-                <SelectItem value="hiring-manager">Hiring Manager</SelectItem>
-                <SelectItem value="peer">Peer</SelectItem>
-                <SelectItem value="investor">Investor</SelectItem>
+                <SelectItem value="HR">HR</SelectItem>
+                <SelectItem value="Founder">Founder</SelectItem>
+                <SelectItem value="Hiring Manager">Hiring Manager</SelectItem>
+                <SelectItem value="Peer">Peer</SelectItem>
+                <SelectItem value="Investor">Investor</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -161,6 +195,8 @@ const Index = () => {
           </div>
 
           <Textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
             placeholder="Paste your LinkedIn message here..."
             className="min-h-[340px] bg-card border-primary/40 border-2 resize-none text-foreground placeholder:text-muted-foreground"
           />
@@ -186,8 +222,8 @@ const Index = () => {
             <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
         )}
-        {!loading && showResults && <ScorecardPanel />}
-        {!loading && !showResults && (
+        {!loading && scorecard && <ScorecardPanel data={scorecard} />}
+        {!loading && !scorecard && (
           <div className="flex items-center justify-center h-full">
             <div className="text-center space-y-4">
               <ClipboardCheck className="h-16 w-16 mx-auto text-muted-foreground/40" strokeWidth={1} />
