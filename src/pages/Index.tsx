@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AlertTriangle, ClipboardCheck, Copy, Flag, Loader2 } from "lucide-react";
+import { useTour } from "@/hooks/use-tour";
 import {
   Select,
   SelectContent,

@@ -6,6 +6,7 @@ import { NavLink } from "@/components/NavLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCredits } from "@/contexts/CreditContext";
+import { useTour } from "@/hooks/use-tour";
 import {
   Dialog,
   DialogContent,
