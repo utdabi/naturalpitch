@@ -177,7 +177,13 @@ const History = () => {
                   </span>
                 </td>
                 <td className="py-4">
-                  <span className="inline-flex items-center justify-center rounded-full border border-border w-9 h-9 text-sm font-semibold">
+                  <span className={`inline-flex items-center justify-center rounded-full w-9 h-9 text-sm font-semibold ${
+                    row.score >= 80
+                      ? "bg-[hsl(160,60%,40%)] text-white"
+                      : row.score >= 60
+                        ? "bg-[hsl(45,90%,50%)] text-[hsl(30,10%,15%)]"
+                        : "bg-[hsl(0,70%,50%)] text-white"
+                  }`}>
                     {row.score}
                   </span>
                 </td>
