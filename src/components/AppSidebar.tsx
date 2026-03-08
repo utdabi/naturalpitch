@@ -1,4 +1,5 @@
-import { Pencil, Folder, BarChart3, Settings } from "lucide-react";
+import { Pencil, Folder, BarChart3, Settings, LogOut } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
