@@ -60,6 +60,16 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <Input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              maxLength={100}
+            />
+          )}
           <Input
             type="email"
             placeholder="Email"
