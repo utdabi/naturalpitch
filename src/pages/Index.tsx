@@ -177,9 +177,26 @@ const Index = () => {
         body: { message, persona },
       });
 
-      if (error) throw error;
+      if (error) {
+        // Try to parse the error response body for injection detection
+        let errorBody: any = null;
+        try {
+          if (error.context && typeof error.context === "object" && error.context instanceof Response) {
+            errorBody = await error.context.json();
+          }
+        } catch { /* ignore parse failures */ }
 
-      // Check for injection detection
+        if (errorBody?.error === "INJECTION_DETECTED") {
+          setInjectionError(errorBody.message);
+          return;
+        }
+
+        // Generic error for all other non-200 responses
+        setInjectionError("Something went wrong. Please try again.");
+        return;
+      }
+
+      // Check for injection detection (in case returned as 200 with error field)
       if (data?.error === "INJECTION_DETECTED") {
         setInjectionError(data.message);
         return;
@@ -206,11 +223,7 @@ const Index = () => {
       });
     } catch (e: any) {
       console.error("Grading failed:", e);
-      toast({
-        title: "Grading failed",
-        description: e?.message || "Please try again.",
-        variant: "destructive",
-      });
+      setInjectionError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
