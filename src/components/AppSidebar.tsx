@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCredits } from "@/contexts/CreditContext";
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +27,7 @@ const navItems = [
 export function AppSidebar() {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { credits } = useCredits();
   const [initial, setInitial] = useState("U");
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export function AppSidebar() {
 
       <SidebarFooter className="px-4 pb-4 items-center">
         <span className="inline-block rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
-          95 Credits
+          {credits} Credit{credits !== 1 ? "s" : ""}
         </span>
         <Settings className="h-5 w-5 text-sidebar-foreground/60 cursor-pointer" />
         <Popover>
