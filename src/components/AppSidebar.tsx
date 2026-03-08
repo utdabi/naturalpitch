@@ -1,4 +1,5 @@
-import { Pencil, Folder, BarChart3, Settings } from "lucide-react";
+import { Pencil, Folder, BarChart3, Settings, LogOut } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
@@ -24,7 +25,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [initial, setInitial] = useState("U");
 
   useEffect(() => {
@@ -89,10 +90,23 @@ export function AppSidebar() {
         <span className="inline-block rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
           95 Credits
         </span>
-        <Settings className="h-5 w-5 text-sidebar-foreground/60" />
-        <div className="h-9 w-9 rounded-full bg-sidebar-accent overflow-hidden flex items-center justify-center">
-          <span className="text-xs text-sidebar-foreground">U</span>
-        </div>
+        <Settings className="h-5 w-5 text-sidebar-foreground/60 cursor-pointer" />
+        <Popover>
+          <PopoverTrigger asChild>
+            <div className="h-9 w-9 rounded-full bg-sidebar-accent overflow-hidden flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-sidebar-ring transition-all">
+              <span className="text-xs text-sidebar-foreground">{initial}</span>
+            </div>
+          </PopoverTrigger>
+          <PopoverContent side="top" align="center" className="w-40 p-1">
+            <button
+              onClick={signOut}
+              className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              Sign Out
+            </button>
+          </PopoverContent>
+        </Popover>
       </SidebarFooter>
     </Sidebar>
   );
