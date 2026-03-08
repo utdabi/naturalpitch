@@ -1,33 +1,65 @@
-import { createContext, useContext, useState, ReactNode, useCallback } from "react";
+import { createContext, useContext, useState, ReactNode, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CreditContextType {
   credits: number;
-  useCredit: () => boolean; // returns false if no credits left
+  useCredit: () => Promise<boolean>;
+  loading: boolean;
 }
 
 const CreditContext = createContext<CreditContextType>({
-  credits: 10,
-  useCredit: () => false,
+  credits: 0,
+  useCredit: async () => false,
+  loading: true,
 });
 
 export const useCredits = () => useContext(CreditContext);
 
 export function CreditProvider({ children }: { children: ReactNode }) {
-  const [credits, setCredits] = useState(() => {
-    const saved = localStorage.getItem("np_credits");
-    return saved !== null ? parseInt(saved, 10) : 10;
-  });
+  const { user } = useAuth();
+  const [credits, setCredits] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const useCredit = useCallback(() => {
-    if (credits <= 0) return false;
+  useEffect(() => {
+    if (!user) {
+      setCredits(0);
+      setLoading(false);
+      return;
+    }
+
+    const fetchCredits = async () => {
+      const { data, error } = await supabase
+        .from("user_credits")
+        .select("balance")
+        .eq("user_id", user.id)
+        .single();
+
+      if (!error && data) {
+        setCredits(data.balance);
+      }
+      setLoading(false);
+    };
+
+    fetchCredits();
+  }, [user]);
+
+  const useCredit = useCallback(async () => {
+    if (!user || credits <= 0) return false;
     const next = credits - 1;
+
+    const { error } = await supabase
+      .from("user_credits")
+      .update({ balance: next })
+      .eq("user_id", user.id);
+
+    if (error) return false;
     setCredits(next);
-    localStorage.setItem("np_credits", String(next));
     return true;
-  }, [credits]);
+  }, [user, credits]);
 
   return (
-    <CreditContext.Provider value={{ credits, useCredit }}>
+    <CreditContext.Provider value={{ credits, useCredit, loading }}>
       {children}
     </CreditContext.Provider>
   );
