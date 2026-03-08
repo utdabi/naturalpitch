@@ -23,6 +23,7 @@ const App = () => (
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/history" element={<History />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>
