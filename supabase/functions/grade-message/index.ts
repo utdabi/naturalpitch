@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +42,41 @@ ${deep_context}
 For the Direct and Friendly rewrites, the first sentence must reference something specific from the TARGET_CONTEXT. Never use generic openers like 'I've been following your work' when specific context is available.`;
     }
 
+    // Voice calibration: fetch successful messages for the authenticated user
+    let voiceCalibrationBlock = "";
+    const authHeader = req.headers.get("authorization");
+    if (authHeader) {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+        global: { headers: { Authorization: authHeader } },
+      });
+
+      const { data: voiceRows } = await supabase
+        .from("outcome_logs")
+        .select("grade_result_id, grade_results!inner(rewrite_direct)")
+        .in("outcome", ["REPLIED", "BOOKED"])
+        .order("created_at", { ascending: false })
+        .limit(3);
+
+      if (voiceRows && voiceRows.length > 0) {
+        const examples = voiceRows
+          .map((r: any) => r.grade_results?.rewrite_direct)
+          .filter(Boolean)
+          .join("\n\n");
+
+        if (examples.length > 0) {
+          voiceCalibrationBlock = `
+
+VOICE CALIBRATION: The user has sent messages that received positive responses. Match the tone, vocabulary, and sentence length of these successful examples. Do not copy them — use them only as stylistic reference.
+
+<VOICE_EXAMPLES>
+${examples}
+</VOICE_EXAMPLES>`;
+        }
+      }
+    }
+
     const systemPrompt = `You are an outreach coach. Grade the following LinkedIn message for the persona ${persona}. Return valid JSON only with this exact structure:
 { "overall": number, "clarity": number, "relevance": number, "credibility": number, "cta": number, "tone": number, "red_flags": string[], "rewrite_direct": string, "rewrite_friendly": string, "hooks": string[] }
 
@@ -51,7 +87,7 @@ Rules:
 - rewrite_direct: a rewritten version that is direct and professional
 - rewrite_friendly: a rewritten version that is warm and conversational. For the Friendly rewrite, the CTA must be a soft, specific question the reader can answer with one word or one click. Never use "send my resume" or "pick your brain" as a CTA.
 - hooks: 3 alternative opening sentences
-- Return ONLY the JSON object, no markdown, no explanation${deepContextBlock}`;
+- Return ONLY the JSON object, no markdown, no explanation${deepContextBlock}${voiceCalibrationBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
