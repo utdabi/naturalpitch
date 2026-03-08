@@ -261,9 +261,18 @@ const Index = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <Switch />
+              <Switch checked={deepContextOn} onCheckedChange={setDeepContextOn} />
               <label className="text-sm text-foreground">Deep Context (5 credits)</label>
             </div>
+
+            {deepContextOn && (
+              <Textarea
+                value={deepContext}
+                onChange={(e) => setDeepContext(e.target.value)}
+                placeholder="Paste their LinkedIn About section, a recent post, or their job description here..."
+                className="min-h-[120px] bg-card border-border border resize-none text-foreground placeholder:text-muted-foreground"
+              />
+            )}
 
             <Textarea
               value={message}
