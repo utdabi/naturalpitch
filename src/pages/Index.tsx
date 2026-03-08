@@ -162,7 +162,24 @@ const Index = () => {
       });
 
       if (error) throw error;
-      setScorecard(data as Scorecard);
+      const result = data as Scorecard;
+      setScorecard(result);
+
+      // Save to database
+      await supabase.from("grade_results").insert({
+        persona,
+        overall_score: result.overall,
+        clarity: result.clarity,
+        relevance: result.relevance,
+        credibility: result.credibility,
+        cta: result.cta,
+        tone: result.tone,
+        red_flags: result.red_flags,
+        message,
+        rewrite_direct: result.rewrite_direct,
+        rewrite_friendly: result.rewrite_friendly,
+        hooks: result.hooks,
+      });
     } catch (e: any) {
       console.error("Grading failed:", e);
       toast({

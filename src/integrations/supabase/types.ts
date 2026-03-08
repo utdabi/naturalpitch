@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      grade_results: {
+        Row: {
+          clarity: number | null
+          created_at: string
+          credibility: number | null
+          cta: number | null
+          hooks: string[] | null
+          id: string
+          message: string | null
+          overall_score: number
+          persona: string
+          red_flags: string[] | null
+          relevance: number | null
+          rewrite_direct: string | null
+          rewrite_friendly: string | null
+          tone: number | null
+          user_id: string | null
+        }
+        Insert: {
+          clarity?: number | null
+          created_at?: string
+          credibility?: number | null
+          cta?: number | null
+          hooks?: string[] | null
+          id?: string
+          message?: string | null
+          overall_score: number
+          persona: string
+          red_flags?: string[] | null
+          relevance?: number | null
+          rewrite_direct?: string | null
+          rewrite_friendly?: string | null
+          tone?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          clarity?: number | null
+          created_at?: string
+          credibility?: number | null
+          cta?: number | null
+          hooks?: string[] | null
+          id?: string
+          message?: string | null
+          overall_score?: number
+          persona?: string
+          red_flags?: string[] | null
+          relevance?: number | null
+          rewrite_direct?: string | null
+          rewrite_friendly?: string | null
+          tone?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
