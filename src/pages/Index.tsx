@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { ClipboardCheck, Copy, Flag, Loader2 } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Copy, Flag, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -272,8 +272,14 @@ const Index = () => {
               <Loader2 className="h-10 w-10 animate-spin text-primary" />
             </div>
           )}
-          {!loading && scorecard && <ScorecardPanel data={scorecard} />}
-          {!loading && !scorecard && (
+          {!loading && injectionError && (
+            <div className="flex items-center gap-3 rounded-lg bg-destructive/10 border border-destructive/30 p-4">
+              <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
+              <p className="text-sm text-destructive font-medium">{injectionError}</p>
+            </div>
+          )}
+          {!loading && !injectionError && scorecard && <ScorecardPanel data={scorecard} />}
+          {!loading && !injectionError && !scorecard && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center space-y-4">
                 <ClipboardCheck className="h-16 w-16 mx-auto text-muted-foreground/40" strokeWidth={1} />
