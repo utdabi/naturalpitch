@@ -140,13 +140,17 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
 
 const Index = () => {
   const location = useLocation();
-  const { credits, useCredit } = useCredits();
+  const { credits, useCredits: deductCredits } = useCredits();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
   const [message, setMessage] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [injectionError, setInjectionError] = useState<string | null>(null);
+  const [deepContextOn, setDeepContextOn] = useState(false);
+  const [deepContext, setDeepContext] = useState("");
+
+  const creditCost = deepContextOn ? 5 : 1;
 
   useEffect(() => {
     const state = location.state as { message?: string; persona?: string } | null;
@@ -163,7 +167,7 @@ const Index = () => {
       toast({ title: "Please select a target persona", variant: "destructive" });
       return;
     }
-    if (credits <= 0) {
+    if (credits < creditCost) {
       setShowUpgrade(true);
       return;
     }
@@ -174,7 +178,11 @@ const Index = () => {
 
     try {
       const { data, error } = await supabase.functions.invoke("grade-message", {
-        body: { message, persona },
+        body: {
+          message,
+          persona,
+          deep_context: deepContextOn ? deepContext : null,
+        },
       });
 
       if (error) {
