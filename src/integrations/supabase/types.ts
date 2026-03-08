@@ -68,6 +68,38 @@ export type Database = {
         }
         Relationships: []
       }
+      outcome_logs: {
+        Row: {
+          created_at: string
+          grade_result_id: string
+          id: string
+          outcome: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          grade_result_id: string
+          id?: string
+          outcome: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          grade_result_id?: string
+          id?: string
+          outcome?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "outcome_logs_grade_result_id_fkey"
+            columns: ["grade_result_id"]
+            isOneToOne: false
+            referencedRelation: "grade_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
