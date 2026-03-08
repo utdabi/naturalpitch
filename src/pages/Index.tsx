@@ -131,10 +131,17 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
 }
 
 const Index = () => {
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    const state = location.state as { message?: string; persona?: string } | null;
+    if (state?.message) setMessage(state.message);
+    if (state?.persona) setPersona(state.persona);
+  }, [location.state]);
 
   const handleGrade = async () => {
     if (!message.trim()) {
