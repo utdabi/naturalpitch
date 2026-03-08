@@ -25,7 +25,7 @@ const navItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [initial, setInitial] = useState("U");
 
   useEffect(() => {
