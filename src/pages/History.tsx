@@ -154,26 +154,28 @@ const History = () => {
     <div className="h-screen overflow-auto p-8">
       <h1 className="text-2xl font-bold text-foreground mb-6">History & Outcomes</h1>
 
-      {/* Patterns Section */}
-      <div className="rounded-xl border border-border bg-card p-6 mb-6">
-        <h2 className="text-lg font-bold text-foreground">Your Patterns</h2>
-        <p className="text-sm text-muted-foreground mb-4">Unlocked after 10 outcomes logged</p>
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { value: "78", label: "Avg Score" },
-            { value: "32%", label: "Reply Rate" },
-            { value: "HR", label: "Best Persona" },
-          ].map((m) => (
-            <div key={m.label} className="rounded-lg border border-border bg-secondary/40 p-6 text-center">
-              <div className="text-4xl font-bold text-foreground">{m.value}</div>
-              <div className="text-sm text-muted-foreground mt-1">{m.label}</div>
-            </div>
-          ))}
+      {outcomeCount < 10 ? (
+        <div className="rounded-xl border border-border bg-card p-6 mb-6">
+          <p className="text-sm text-muted-foreground">Log 10 outcomes to unlock your personal patterns.</p>
         </div>
-        <div className="mt-4 rounded-lg bg-primary px-4 py-3 text-sm text-primary-foreground">
-          Messages where you score &gt;15 on 'Clarity' get 3x more replies.
+      ) : patterns ? (
+        <div className="rounded-xl border border-border bg-card p-6 mb-6">
+          <h2 className="text-lg font-bold text-foreground">Your Patterns</h2>
+          <p className="text-sm text-muted-foreground mb-4">Based on {outcomeCount} outcomes logged</p>
+          <div className="grid grid-cols-3 gap-4">
+            {[
+              { value: String(patterns.avgScore), label: "Avg Score" },
+              { value: `${patterns.replyRate}%`, label: "Reply Rate" },
+              { value: patterns.bestPersona, label: "Best Persona" },
+            ].map((m) => (
+              <div key={m.label} className="rounded-lg border border-border bg-secondary/40 p-6 text-center">
+                <div className="text-4xl font-bold text-foreground">{m.value}</div>
+                <div className="text-sm text-muted-foreground mt-1">{m.label}</div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {/* Grade History Table */}
       <div className="rounded-xl border border-border bg-card p-6">
