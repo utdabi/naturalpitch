@@ -146,6 +146,7 @@ const Index = () => {
   const [persona, setPersona] = useState("");
   const [message, setMessage] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [injectionError, setInjectionError] = useState<string | null>(null);
 
   useEffect(() => {
     const state = location.state as { message?: string; persona?: string } | null;
@@ -169,6 +170,7 @@ const Index = () => {
 
     setLoading(true);
     setScorecard(null);
+    setInjectionError(null);
 
     try {
       const { data, error } = await supabase.functions.invoke("grade-message", {
@@ -176,6 +178,13 @@ const Index = () => {
       });
 
       if (error) throw error;
+
+      // Check for injection detection
+      if (data?.error === "INJECTION_DETECTED") {
+        setInjectionError(data.message);
+        return;
+      }
+
       const result = data as Scorecard;
       setScorecard(result);
       await useCredit();
