@@ -208,73 +208,92 @@ const Index = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Left Pane */}
-      <div className="flex-1 p-8 overflow-auto">
-        <h1 className="text-2xl font-bold text-foreground mb-6">New Pitch</h1>
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-semibold text-foreground mb-2 block">Target Persona</label>
-            <Select value={persona} onValueChange={setPersona}>
-              <SelectTrigger className="w-full bg-card border-border">
-                <SelectValue placeholder="Select target (HR, Founder, Peer...)" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="HR">HR</SelectItem>
-                <SelectItem value="Founder">Founder</SelectItem>
-                <SelectItem value="Hiring Manager">Hiring Manager</SelectItem>
-                <SelectItem value="Peer">Peer</SelectItem>
-                <SelectItem value="Investor">Investor</SelectItem>
-              </SelectContent>
-            </Select>
+    <>
+      <div className="flex h-screen min-w-0">
+        {/* Left Pane */}
+        <div className="flex-1 min-w-0 p-6 lg:p-8 overflow-auto">
+          <h1 className="text-2xl font-bold text-foreground mb-6">New Pitch</h1>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-2 block">Target Persona</label>
+              <Select value={persona} onValueChange={setPersona}>
+                <SelectTrigger className="w-full bg-card border-border">
+                  <SelectValue placeholder="Select target (HR, Founder, Peer...)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="HR">HR</SelectItem>
+                  <SelectItem value="Founder">Founder</SelectItem>
+                  <SelectItem value="Hiring Manager">Hiring Manager</SelectItem>
+                  <SelectItem value="Peer">Peer</SelectItem>
+                  <SelectItem value="Investor">Investor</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Switch />
+              <label className="text-sm text-foreground">Deep Context (5 credits)</label>
+            </div>
+
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Paste your LinkedIn message here..."
+              className="min-h-[280px] lg:min-h-[340px] bg-card border-primary/40 border-2 resize-none text-foreground placeholder:text-muted-foreground"
+            />
+
+            <Button
+              onClick={handleGrade}
+              disabled={loading}
+              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base rounded-lg"
+            >
+              {loading ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Grading…</>
+              ) : (
+                "Grade & Improve (1 credit)"
+              )}
+            </Button>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <Switch />
-            <label className="text-sm text-foreground">Deep Context (5 credits)</label>
-          </div>
-
-          <Textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Paste your LinkedIn message here..."
-            className="min-h-[340px] bg-card border-primary/40 border-2 resize-none text-foreground placeholder:text-muted-foreground"
-          />
-
-          <Button
-            onClick={handleGrade}
-            disabled={loading}
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-6 text-base rounded-lg"
-          >
-            {loading ? (
-              <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Grading…</>
-            ) : (
-              "Grade & Improve (1 credit)"
-            )}
-          </Button>
+        {/* Right Pane */}
+        <div className="flex-1 min-w-0 bg-secondary/60 p-6 lg:p-8 overflow-auto">
+          {loading && (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            </div>
+          )}
+          {!loading && scorecard && <ScorecardPanel data={scorecard} />}
+          {!loading && !scorecard && (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-4">
+                <ClipboardCheck className="h-16 w-16 mx-auto text-muted-foreground/40" strokeWidth={1} />
+                <p className="text-muted-foreground text-sm max-w-[240px]">
+                  Your scorecard and rewrites will appear here
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Right Pane */}
-      <div className="flex-1 bg-secondary/60 p-8 overflow-auto">
-        {loading && (
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
-          </div>
-        )}
-        {!loading && scorecard && <ScorecardPanel data={scorecard} />}
-        {!loading && !scorecard && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center space-y-4">
-              <ClipboardCheck className="h-16 w-16 mx-auto text-muted-foreground/40" strokeWidth={1} />
-              <p className="text-muted-foreground text-sm max-w-[240px]">
-                Your scorecard and rewrites will appear here
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+      <Dialog open={showUpgrade} onOpenChange={setShowUpgrade}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>You've used your free credits</DialogTitle>
+            <DialogDescription>
+              Upgrade to continue grading and improving your LinkedIn messages.
+            </DialogDescription>
+          </DialogHeader>
+          <Button
+            onClick={() => setShowUpgrade(false)}
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-5"
+          >
+            Upgrade
+          </Button>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
