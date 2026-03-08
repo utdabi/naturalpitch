@@ -82,6 +82,22 @@ Rules:
     const jsonStr = content.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     const scorecard = JSON.parse(jsonStr);
 
+    // Check for injection-related red flags
+    const blockedWords = ["jailbreak", "injection", "security", "policy violation"];
+    const hasInjection = (scorecard.red_flags || []).some((flag: string) =>
+      blockedWords.some((word) => flag.toLowerCase().includes(word))
+    );
+
+    if (hasInjection) {
+      return new Response(
+        JSON.stringify({
+          error: "INJECTION_DETECTED",
+          message: "Your message contains content that cannot be processed. Please paste only your LinkedIn outreach text.",
+        }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     return new Response(JSON.stringify(scorecard), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
