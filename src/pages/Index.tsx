@@ -178,7 +178,7 @@ const Index = () => {
       if (error) throw error;
       const result = data as Scorecard;
       setScorecard(result);
-      useCredit();
+      await useCredit();
 
       // Save to database
       await supabase.from("grade_results").insert({
