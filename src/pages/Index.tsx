@@ -140,10 +140,12 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
 
 const Index = () => {
   const location = useLocation();
+  const { credits, useCredit } = useCredits();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
   const [message, setMessage] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     const state = location.state as { message?: string; persona?: string } | null;
@@ -160,6 +162,10 @@ const Index = () => {
       toast({ title: "Please select a target persona", variant: "destructive" });
       return;
     }
+    if (credits <= 0) {
+      setShowUpgrade(true);
+      return;
+    }
 
     setLoading(true);
     setScorecard(null);
@@ -172,6 +178,7 @@ const Index = () => {
       if (error) throw error;
       const result = data as Scorecard;
       setScorecard(result);
+      useCredit();
 
       // Save to database
       await supabase.from("grade_results").insert({
