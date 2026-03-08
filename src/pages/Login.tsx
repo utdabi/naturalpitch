@@ -10,6 +10,7 @@ const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -19,13 +20,21 @@ const Login = () => {
 
     try {
       if (isSignUp) {
+        if (!fullName.trim()) {
+          toast({ title: "Please enter your full name", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName.trim() },
+          },
         });
         if (error) throw error;
-        toast({ title: "Check your email for a confirmation link!" });
+        navigate("/");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -51,6 +60,16 @@ const Login = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {isSignUp && (
+            <Input
+              type="text"
+              placeholder="Full Name"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              maxLength={100}
+            />
+          )}
           <Input
             type="email"
             placeholder="Email"
