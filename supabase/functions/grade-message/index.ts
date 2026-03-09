@@ -46,6 +46,13 @@ serve(async (req) => {
     // Parse request body
     const { message, persona, deep_context } = await req.json();
 
+    // ==========================================
+    // INPUT VALIDATION - Security enforcement
+    // ==========================================
+    const MAX_MESSAGE = 5000;
+    const MAX_CONTEXT = 3000;
+    const VALID_PERSONAS = ["HR", "Founder", "Hiring Manager", "Peer", "Investor"];
+
     if (!message || !persona) {
       return new Response(
         JSON.stringify({ error: "message and persona are required" }),
@@ -53,10 +60,36 @@ serve(async (req) => {
       );
     }
 
+    if (typeof message !== "string" || message.length > MAX_MESSAGE) {
+      return new Response(
+        JSON.stringify({ error: "Message too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!VALID_PERSONAS.includes(persona)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid persona" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (deep_context && (typeof deep_context !== "string" || deep_context.length > MAX_CONTEXT)) {
+      return new Response(
+        JSON.stringify({ error: "Context too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize deep_context by stripping XML-like tags to reduce prompt injection surface
+    const sanitizedContext = deep_context
+      ? deep_context.replace(/<[^>]*>/g, "").trim()
+      : "";
+
     // ==========================================
     // CREDIT CHECK - Server-side enforcement
     // ==========================================
-    const hasDeepContext = typeof deep_context === "string" && deep_context.trim().length > 0;
+    const hasDeepContext = sanitizedContext.length > 0;
     const creditCost = hasDeepContext ? 2 : 1;
 
     // Use service role to call the deduct_credits function
@@ -98,7 +131,7 @@ serve(async (req) => {
 The target person's background is provided below. Use it to write an opening hook that references something SPECIFIC from their background — a project, a post, a career transition, or a stated goal. The hook must feel like the sender actually read their profile, not like a template.
 
 <TARGET_CONTEXT>
-${deep_context}
+${sanitizedContext}
 </TARGET_CONTEXT>
 
 For the Direct and Friendly rewrites, the first sentence must reference something specific from the TARGET_CONTEXT. Never use generic openers like 'I've been following your work' when specific context is available.`;
@@ -237,7 +270,7 @@ PUNCTUATION RULES — strictly enforced:
   } catch (e) {
     console.error("grade-message error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
