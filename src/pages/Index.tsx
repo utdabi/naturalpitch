@@ -141,7 +141,7 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
 
 const Index = () => {
   const location = useLocation();
-  const { credits, useCredits: deductCredits } = useCredits();
+  const { credits, refreshCredits } = useCredits();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
@@ -173,6 +173,7 @@ const Index = () => {
       toast({ title: "Please select a target persona", variant: "destructive" });
       return;
     }
+    // Client-side check for UX only - actual enforcement is server-side
     if (credits < creditCost) {
       setShowUpgrade(true);
       return;
@@ -192,7 +193,7 @@ const Index = () => {
       });
 
       if (error) {
-        // Try to parse the error response body for injection detection
+        // Try to parse the error response body for specific error handling
         let errorBody: any = null;
         try {
           if (error.context && typeof error.context === "object" && error.context instanceof Response) {
@@ -202,6 +203,11 @@ const Index = () => {
 
         if (errorBody?.error === "INJECTION_DETECTED") {
           setInjectionError(errorBody.message);
+          return;
+        }
+
+        if (errorBody?.code === "INSUFFICIENT_CREDITS") {
+          setShowUpgrade(true);
           return;
         }
 
@@ -218,7 +224,9 @@ const Index = () => {
 
       const result = data as Scorecard;
       setScorecard(result);
-      await deductCredits(creditCost);
+      
+      // Refresh credits from server (credits were deducted server-side)
+      await refreshCredits();
 
       // Save to database
       await supabase.from("grade_results").insert({

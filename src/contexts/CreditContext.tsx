@@ -4,13 +4,13 @@ import { useAuth } from "@/contexts/AuthContext";
 
 interface CreditContextType {
   credits: number;
-  useCredits: (amount?: number) => Promise<boolean>;
+  refreshCredits: () => Promise<void>;
   loading: boolean;
 }
 
 const CreditContext = createContext<CreditContextType>({
   credits: 0,
-  useCredits: async () => false,
+  refreshCredits: async () => {},
   loading: true,
 });
 
@@ -23,46 +23,33 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   const [credits, setCredits] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchCredits = useCallback(async () => {
     if (!user) {
       setCredits(0);
       setLoading(false);
       return;
     }
 
-    const fetchCredits = async () => {
-      const { data, error } = await supabase
-        .from("user_credits")
-        .select("balance")
-        .eq("user_id", user.id)
-        .single();
+    const { data, error } = await supabase
+      .from("user_credits")
+      .select("balance")
+      .eq("user_id", user.id)
+      .single();
 
-      if (!error && data) {
-        setCredits(data.balance);
-      }
-      setLoading(false);
-    };
-
-    fetchCredits();
+    if (!error && data) {
+      setCredits(data.balance);
+    }
+    setLoading(false);
   }, [user]);
 
-  const useCreditsAmount = useCallback(async (amount: number = 1) => {
-    if (!user || credits < amount) return false;
-    const next = credits - amount;
-
-    const { error } = await supabase
-      .from("user_credits")
-      .update({ balance: next })
-      .eq("user_id", user.id);
-
-    if (error) return false;
-    setCredits(next);
-    return true;
-  }, [user, credits]);
+  useEffect(() => {
+    fetchCredits();
+  }, [fetchCredits]);
 
   return (
-    <CreditContext.Provider value={{ credits, useCredits: useCreditsAmount, loading }}>
+    <CreditContext.Provider value={{ credits, refreshCredits: fetchCredits, loading }}>
       {children}
     </CreditContext.Provider>
   );
 }
+
