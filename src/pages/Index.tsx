@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
-import { AlertTriangle, ClipboardCheck, Compass, Copy, Flag, Loader2 } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { AlertTriangle, ClipboardCheck, Compass, Copy, Flag, Info, Loader2 } from "lucide-react";
 import { useTour } from "@/hooks/use-tour";
 import {
   Select,
@@ -198,6 +198,7 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
 
 const Index = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { credits, refreshCredits } = useCredits();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
@@ -208,6 +209,7 @@ const Index = () => {
   const [injectionError, setInjectionError] = useState<string | null>(null);
   const [deepContextOn, setDeepContextOn] = useState(false);
   const [deepContext, setDeepContext] = useState("");
+  const [cachedResultId, setCachedResultId] = useState<string | null>(null);
 
   const creditCost = deepContextOn ? 2 : 1;
   const { maybeStartTour } = useTour();
@@ -240,19 +242,58 @@ const Index = () => {
     setLoading(true);
     setScorecard(null);
     setInjectionError(null);
+    setCachedResultId(null);
 
     try {
+      // Check for cached result first
+      const trimmedMessage = message.trim();
+      const trimmedSubject = subjectLine.trim() || null;
+
+      let cacheQuery = supabase
+        .from("grade_results")
+        .select("*")
+        .ilike("message", trimmedMessage)
+        .eq("persona", persona);
+
+      if (trimmedSubject) {
+        cacheQuery = cacheQuery.ilike("subject_line_input", trimmedSubject);
+      } else {
+        cacheQuery = cacheQuery.is("subject_line_input", null);
+      }
+
+      const { data: cachedRows } = await cacheQuery.limit(1);
+
+      if (cachedRows && cachedRows.length > 0) {
+        const cached = cachedRows[0];
+        const cachedScorecard: Scorecard = {
+          overall: cached.overall_score,
+          clarity: cached.clarity ?? 0,
+          relevance: cached.relevance ?? 0,
+          credibility: cached.credibility ?? 0,
+          cta: cached.cta ?? 0,
+          tone: cached.tone ?? 0,
+          red_flags: (cached.red_flags as string[]) ?? [],
+          rewrite_direct: cached.rewrite_direct ?? "",
+          rewrite_friendly: cached.rewrite_friendly ?? "",
+          hooks: (cached.hooks as string[]) ?? [],
+        };
+        setScorecard(cachedScorecard);
+        setCachedResultId(cached.id);
+        setLoading(false);
+        return;
+      }
+
+      // No cache hit — proceed with grading
       const { data, error } = await supabase.functions.invoke("grade-message", {
         body: {
           message,
           persona,
           deep_context: deepContextOn ? deepContext : null,
-          subject_line: subjectLine.trim() || null,
+          subject_line: trimmedSubject,
         },
       });
 
       if (error) {
-        // Try to parse the error response body for specific error handling
         let errorBody: any = null;
         try {
           if (error.context && typeof error.context === "object" && error.context instanceof Response) {
@@ -270,12 +311,10 @@ const Index = () => {
           return;
         }
 
-        // Generic error for all other non-200 responses
         setInjectionError("Something went wrong. Please try again.");
         return;
       }
 
-      // Check for injection detection (in case returned as 200 with error field)
       if (data?.error === "INJECTION_DETECTED") {
         setInjectionError(data.message);
         return;
@@ -297,10 +336,11 @@ const Index = () => {
         cta: result.cta,
         tone: result.tone,
         red_flags: result.red_flags,
-        message,
+        message: trimmedMessage,
         rewrite_direct: result.rewrite_direct,
         rewrite_friendly: result.rewrite_friendly,
         hooks: result.hooks,
+        subject_line_input: trimmedSubject,
       });
     } catch (e: any) {
       console.error("Grading failed:", e);
@@ -400,7 +440,25 @@ const Index = () => {
               <p className="text-sm text-destructive font-medium">{injectionError}</p>
             </div>
           )}
-          {!loading && !injectionError && scorecard && <ScorecardPanel data={scorecard} usedDeepContext={deepContextOn} />}
+          {!loading && !injectionError && scorecard && (
+            <>
+              {cachedResultId && (
+                <div className="flex items-center gap-3 rounded-lg bg-[hsl(45,90%,50%)]/10 border border-[hsl(45,90%,50%)]/30 p-4 mb-4">
+                  <Info className="h-5 w-5 text-[hsl(45,90%,50%)] shrink-0" />
+                  <p className="text-sm text-foreground font-medium flex-1">
+                    We found this in your history. No credits were used.{" "}
+                    <button
+                      onClick={() => navigate("/history")}
+                      className="underline text-primary hover:text-primary/80"
+                    >
+                      View in History
+                    </button>
+                  </p>
+                </div>
+              )}
+              <ScorecardPanel data={scorecard} usedDeepContext={deepContextOn} />
+            </>
+          )}
           {!loading && !injectionError && !scorecard && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center space-y-4">
