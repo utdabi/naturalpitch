@@ -377,8 +377,8 @@ const Index = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="HR">HR</SelectItem>
-                  <SelectItem value="Founder">Founder</SelectItem>
                   <SelectItem value="Hiring Manager">Hiring Manager</SelectItem>
+                  <SelectItem value="Founder">Founder</SelectItem>
                   <SelectItem value="Peer">Peer</SelectItem>
                   <SelectItem value="Investor">Investor</SelectItem>
                 </SelectContent>
