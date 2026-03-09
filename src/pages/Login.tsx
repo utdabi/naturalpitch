@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
