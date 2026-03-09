@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { AlertTriangle, ClipboardCheck, Copy, Flag, Loader2 } from "lucide-react";
+import { AlertTriangle, ClipboardCheck, Compass, Copy, Flag, Loader2 } from "lucide-react";
 import { useTour } from "@/hooks/use-tour";
 import {
   Select,
@@ -250,8 +250,9 @@ const Index = () => {
         <div className="flex-1 min-w-0 p-6 lg:p-8 overflow-auto flex flex-col relative">
           <button
             onClick={() => maybeStartTour(true)}
-            className="absolute top-4 right-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full border border-primary/50 bg-primary/5 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/10 hover:border-primary transition-colors"
           >
+            <Compass className="h-3.5 w-3.5" />
             Take a tour
           </button>
           <h1 className="text-2xl font-bold text-foreground mb-6">New Pitch</h1>
