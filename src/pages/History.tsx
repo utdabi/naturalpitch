@@ -38,6 +38,7 @@ interface GradeRow {
   rewrite_friendly: string;
   hooks: string[];
   subject_line_input: string | null;
+  credits_used: number;
 }
 
 const personaColors: Record<string, string> = {

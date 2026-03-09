@@ -345,6 +345,7 @@ const Index = () => {
         subject_line_rewrites: result.subject_line?.options?.length
           ? JSON.stringify(result.subject_line.options)
           : null,
+        credits_used: creditCost,
       });
     } catch (e: any) {
       console.error("Grading failed:", e);
