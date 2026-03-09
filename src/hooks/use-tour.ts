@@ -38,6 +38,13 @@ const steps = [
       description: "Grade your message and get rewrites",
     },
   },
+  {
+    element: "#tour-history",
+    popover: {
+      title: "Track Outcomes",
+      description: "All graded messages are saved here. Update their status to track replies and uncover your best-performing pitches.",
+    },
+  },
 ];
 
 export function useTour() {
