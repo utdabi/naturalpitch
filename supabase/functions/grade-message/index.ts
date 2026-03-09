@@ -163,6 +163,14 @@ Rules:
 - rewrite_direct: a rewritten version that is direct and professional
 - rewrite_friendly: a rewritten version that is warm and conversational. For the Friendly rewrite, the CTA must be a soft, specific question the reader can answer with one word or one click. Never use "send my resume" or "pick your brain" as a CTA.
 - hooks: 3 alternative opening sentences
+
+PUNCTUATION RULES — strictly enforced:
+- Never use em-dashes (—) under any circumstances
+- Never use semicolons (;) under any circumstances
+- Use short sentences instead. If you feel the urge to use an em-dash or semicolon, split it into two sentences.
+- No bullet points in the message itself
+- No formal transitional phrases like 'Furthermore', 'Moreover', 'In conclusion'
+- Write like a human typed this on their phone
 - Return ONLY the JSON object, no markdown, no explanation${deepContextBlock}${senderBackgroundBlock}${voiceCalibrationBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
