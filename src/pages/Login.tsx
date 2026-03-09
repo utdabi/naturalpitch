@@ -72,7 +72,7 @@ const Login = () => {
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2">
-            <img src={logo} alt="NaturalPitch" className="h-8 w-8 mix-blend-screen" />
+            <img src={logo} alt="NaturalPitch" className="h-8 w-8" />
             <span className="italic tracking-tight">NaturalPitch</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
