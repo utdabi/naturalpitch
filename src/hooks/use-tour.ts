@@ -52,20 +52,19 @@ export function useTour() {
     d.drive();
   }, []);
 
-  const maybeStartTour = useCallback(() => {
-    if (!localStorage.getItem("tour_done")) {
-      // Small delay to let the DOM render
-      setTimeout(() => {
-        const d = driver({
-          showProgress: true,
-          steps,
-          onDestroyed: () => {
-            localStorage.setItem("tour_done", "true");
-          },
-        });
-        d.drive();
-      }, 500);
-    }
+  const maybeStartTour = useCallback((force = false) => {
+    if (!force && localStorage.getItem("tour_done")) return;
+    // Small delay to let the DOM render
+    setTimeout(() => {
+      const d = driver({
+        showProgress: true,
+        steps,
+        onDestroyed: () => {
+          localStorage.setItem("tour_done", "true");
+        },
+      });
+      d.drive();
+    }, 500);
   }, []);
 
   return { startTour, maybeStartTour };
