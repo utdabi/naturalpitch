@@ -304,6 +304,15 @@ const History = () => {
                 </div>
               </div>
 
+              {selected.subject_line_rewrites && selected.subject_line_rewrites.length > 0 && (
+                <div className="rounded-lg border border-border p-3">
+                  <h4 className="text-xs font-semibold text-foreground mb-2">Subject Line Options</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    {selected.subject_line_rewrites.map((opt, i) => <li key={i}>{opt}</li>)}
+                  </ul>
+                </div>
+              )}
+
               <div className="rounded-lg border border-border p-3">
                 <h4 className="text-xs font-semibold text-foreground mb-2">Alternative Openers</h4>
                 <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
