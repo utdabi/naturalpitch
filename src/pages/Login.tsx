@@ -47,7 +47,8 @@ const Login = () => {
         });
         if (error) {
           // Surface invite-only message for trigger rejection
-          if (error.message?.toLowerCase().includes("invite")) {
+          const msg = error.message?.toLowerCase() ?? "";
+          if (msg.includes("invite") || msg.includes("database error saving new user")) {
             toast({ title: "This app is currently invite-only.", variant: "destructive" });
             setLoading(false);
             return;
