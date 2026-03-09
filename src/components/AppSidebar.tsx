@@ -120,7 +120,7 @@ export function AppSidebar() {
                 {navItems.map((item) => {
                   const isActive = location.pathname === item.url;
                   return (
-                    <SidebarMenuItem key={item.title}>
+                    <SidebarMenuItem key={item.title} id={item.title === "History & Outcomes" ? "tour-history" : undefined}>
                       <SidebarMenuButton
                         asChild
                         isActive={isActive}
