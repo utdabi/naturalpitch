@@ -1,4 +1,5 @@
 import { Pencil, Folder, BarChart3, Settings, LogOut } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -93,9 +94,9 @@ export function AppSidebar() {
       <Sidebar collapsible="none" className="border-r-0">
         <SidebarHeader className="px-5 py-5">
           <div className="flex items-center gap-2">
+            <img src={logo} alt="NaturalPitch" className="h-6 w-6" />
             <span className="text-xl font-bold italic text-sidebar-foreground tracking-tight">
-              <span className="text-[hsl(var(--sidebar-primary))] text-2xl font-black italic">N</span>
-              {" "}NaturalPitch
+              NaturalPitch
             </span>
           </div>
         </SidebarHeader>
