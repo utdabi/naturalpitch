@@ -37,6 +37,7 @@ export type Database = {
           clarity: number | null
           created_at: string
           credibility: number | null
+          credits_used: number
           cta: number | null
           hooks: string[] | null
           id: string
@@ -56,6 +57,7 @@ export type Database = {
           clarity?: number | null
           created_at?: string
           credibility?: number | null
+          credits_used?: number
           cta?: number | null
           hooks?: string[] | null
           id?: string
@@ -75,6 +77,7 @@ export type Database = {
           clarity?: number | null
           created_at?: string
           credibility?: number | null
+          credits_used?: number
           cta?: number | null
           hooks?: string[] | null
           id?: string
