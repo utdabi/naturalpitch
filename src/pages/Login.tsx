@@ -36,6 +36,19 @@ const Login = () => {
           setLoading(false);
           return;
         }
+
+        // Check allowed_emails whitelist
+        const { data: allowed } = await supabase
+          .from("allowed_emails")
+          .select("id")
+          .eq("email", email.trim().toLowerCase())
+          .maybeSingle();
+
+        if (!allowed) {
+          toast({ title: "This app is currently invite-only.", variant: "destructive" });
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
