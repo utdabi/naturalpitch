@@ -36,19 +36,6 @@ const Login = () => {
           setLoading(false);
           return;
         }
-
-        // Check allowed_emails whitelist
-        const { data: allowed } = await supabase
-          .from("allowed_emails")
-          .select("id")
-          .eq("email", email.trim().toLowerCase())
-          .maybeSingle();
-
-        if (!allowed) {
-          toast({ title: "This app is currently invite-only.", variant: "destructive" });
-          setLoading(false);
-          return;
-        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -57,7 +44,15 @@ const Login = () => {
             data: { full_name: fullName.trim() },
           },
         });
-        if (error) throw error;
+        if (error) {
+          // Surface invite-only message for trigger rejection
+          if (error.message?.toLowerCase().includes("invite")) {
+            toast({ title: "This app is currently invite-only.", variant: "destructive" });
+            setLoading(false);
+            return;
+          }
+          throw error;
+        }
         navigate("/");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
