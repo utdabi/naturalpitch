@@ -11,11 +11,22 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordError("");
+    
+    if (isSignUp) {
+      if (password !== confirmPassword) {
+        setPasswordError("Passwords do not match");
+        return;
+      }
+    }
+    
     setLoading(true);
 
     try {
@@ -85,6 +96,24 @@ const Login = () => {
             required
             minLength={6}
           />
+          {isSignUp && (
+            <div className="space-y-1">
+              <Input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                required
+                minLength={6}
+              />
+              {passwordError && (
+                <p className="text-sm text-destructive">{passwordError}</p>
+              )}
+            </div>
+          )}
           <Button
             type="submit"
             disabled={loading}
