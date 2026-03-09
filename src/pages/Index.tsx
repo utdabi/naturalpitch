@@ -141,7 +141,7 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
 
 const Index = () => {
   const location = useLocation();
-  const { credits, useCredits: deductCredits } = useCredits();
+  const { credits, refreshCredits } = useCredits();
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
