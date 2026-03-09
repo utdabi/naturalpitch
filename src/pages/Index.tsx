@@ -151,7 +151,7 @@ const Index = () => {
   const [deepContextOn, setDeepContextOn] = useState(false);
   const [deepContext, setDeepContext] = useState("");
 
-  const creditCost = deepContextOn ? 5 : 1;
+  const creditCost = deepContextOn ? 2 : 1;
   const { maybeStartTour } = useTour();
 
   useEffect(() => {
@@ -275,7 +275,7 @@ const Index = () => {
 
             <div id="tour-deep-context" className="flex items-center gap-2">
               <Switch checked={deepContextOn} onCheckedChange={setDeepContextOn} />
-              <label className="text-sm text-foreground">Deep Context (5 credits)</label>
+              <label className="text-sm text-foreground">Deep Context (2 credits)</label>
             </div>
 
             {deepContextOn && (
