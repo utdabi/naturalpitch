@@ -247,7 +247,13 @@ const Index = () => {
     <>
       <div className="flex h-screen min-w-0">
         {/* Left Pane */}
-        <div className="flex-1 min-w-0 p-6 lg:p-8 overflow-auto flex flex-col">
+        <div className="flex-1 min-w-0 p-6 lg:p-8 overflow-auto flex flex-col relative">
+          <button
+            onClick={() => maybeStartTour(true)}
+            className="absolute top-4 right-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Take a tour
+          </button>
           <h1 className="text-2xl font-bold text-foreground mb-6">New Pitch</h1>
           <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div>
