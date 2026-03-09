@@ -38,6 +38,7 @@ interface GradeRow {
   rewrite_friendly: string;
   hooks: string[];
   subject_line_input: string | null;
+  subject_line_rewrites: string[] | null;
   credits_used: number;
 }
 
@@ -138,6 +139,7 @@ const History = () => {
             rewrite_friendly: r.rewrite_friendly || "",
             hooks: r.hooks || [],
             subject_line_input: r.subject_line_input || null,
+            subject_line_rewrites: r.subject_line_rewrites ? (() => { try { return JSON.parse(r.subject_line_rewrites); } catch { return null; } })() : null,
             credits_used: r.credits_used ?? 1,
           }))
         );
@@ -301,6 +303,15 @@ const History = () => {
                   <p className="text-sm text-muted-foreground">{selected.rewrite_friendly}</p>
                 </div>
               </div>
+
+              {selected.subject_line_rewrites && selected.subject_line_rewrites.length > 0 && (
+                <div className="rounded-lg border border-border p-3">
+                  <h4 className="text-xs font-semibold text-foreground mb-2">Subject Line Options</h4>
+                  <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                    {selected.subject_line_rewrites.map((opt, i) => <li key={i}>{opt}</li>)}
+                  </ul>
+                </div>
+              )}
 
               <div className="rounded-lg border border-border p-3">
                 <h4 className="text-xs font-semibold text-foreground mb-2">Alternative Openers</h4>
