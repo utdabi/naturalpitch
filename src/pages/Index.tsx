@@ -219,9 +219,10 @@ const Index = () => {
   }, [maybeStartTour]);
 
   useEffect(() => {
-    const state = location.state as { message?: string; persona?: string } | null;
+    const state = location.state as { message?: string; persona?: string; subjectLine?: string } | null;
     if (state?.message) setMessage(state.message);
     if (state?.persona) setPersona(state.persona);
+    if (state?.subjectLine) setSubjectLine(state.subjectLine);
   }, [location.state]);
 
   const handleGrade = async () => {
