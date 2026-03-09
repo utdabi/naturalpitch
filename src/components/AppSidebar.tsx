@@ -144,7 +144,7 @@ export function AppSidebar() {
         </SidebarContent>
 
         <SidebarFooter className="px-4 pb-4 items-center">
-          <span className="inline-block rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
+          <span className="inline-block -translate-y-3 rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
             {credits} Credit{credits !== 1 ? "s" : ""} Remaining
           </span>
           <Settings
