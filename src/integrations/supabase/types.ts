@@ -48,6 +48,7 @@ export type Database = {
           rewrite_direct: string | null
           rewrite_friendly: string | null
           subject_line_input: string | null
+          subject_line_rewrites: string | null
           tone: number | null
           user_id: string
         }
@@ -66,6 +67,7 @@ export type Database = {
           rewrite_direct?: string | null
           rewrite_friendly?: string | null
           subject_line_input?: string | null
+          subject_line_rewrites?: string | null
           tone?: number | null
           user_id?: string
         }
@@ -84,6 +86,7 @@ export type Database = {
           rewrite_direct?: string | null
           rewrite_friendly?: string | null
           subject_line_input?: string | null
+          subject_line_rewrites?: string | null
           tone?: number | null
           user_id?: string
         }

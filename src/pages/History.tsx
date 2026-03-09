@@ -37,6 +37,7 @@ interface GradeRow {
   rewrite_direct: string;
   rewrite_friendly: string;
   hooks: string[];
+  subject_line_input: string | null;
 }
 
 const personaColors: Record<string, string> = {
@@ -135,6 +136,7 @@ const History = () => {
             rewrite_direct: r.rewrite_direct || "",
             rewrite_friendly: r.rewrite_friendly || "",
             hooks: r.hooks || [],
+            subject_line_input: r.subject_line_input || null,
           }))
         );
       }
@@ -275,6 +277,11 @@ const History = () => {
 
               <div className="rounded-lg border border-border bg-secondary/30 p-4">
                 <p className="text-sm text-muted-foreground italic">"{selected.message}"</p>
+                {selected.subject_line_input && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    <span className="font-medium">Subject:</span> {selected.subject_line_input}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-3">
