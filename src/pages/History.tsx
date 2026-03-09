@@ -138,6 +138,7 @@ const History = () => {
             rewrite_friendly: r.rewrite_friendly || "",
             hooks: r.hooks || [],
             subject_line_input: r.subject_line_input || null,
+            credits_used: r.credits_used ?? 1,
           }))
         );
       }
