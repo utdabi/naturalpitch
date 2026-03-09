@@ -66,7 +66,7 @@ function ScoreBar({ name, score, max, color }: { name: string; score: number; ma
   );
 }
 
-function ScorecardPanel({ data }: { data: Scorecard }) {
+function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepContext: boolean }) {
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({ title: "Copied to clipboard" });
@@ -135,6 +135,14 @@ function ScorecardPanel({ data }: { data: Scorecard }) {
           ))}
         </ul>
       </div>
+
+      {!usedDeepContext && data.overall >= 75 && data.overall <= 88 && (
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-4">
+          <p className="text-sm text-foreground leading-relaxed">
+            Your message scores well on structure and brevity. To break past 88, add their LinkedIn profile in Deep Context — the top marks are reserved for messages that reference something specific about the recipient.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -331,7 +339,7 @@ const Index = () => {
               <p className="text-sm text-destructive font-medium">{injectionError}</p>
             </div>
           )}
-          {!loading && !injectionError && scorecard && <ScorecardPanel data={scorecard} />}
+          {!loading && !injectionError && scorecard && <ScorecardPanel data={scorecard} usedDeepContext={deepContextOn} />}
           {!loading && !injectionError && !scorecard && (
             <div className="flex items-center justify-center h-full">
               <div className="text-center space-y-4">
