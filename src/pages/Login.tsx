@@ -74,7 +74,7 @@ const Login = () => {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2">
             <img src={logo} alt="NaturalPitch" className="h-8 w-8" />
-            <span className="italic tracking-tight">NaturalPitch</span>
+            <span className="italic tracking-tight">Natural Pitch</span>
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
             {isSignUp ? "Create your account" : "Sign in to your account"}
