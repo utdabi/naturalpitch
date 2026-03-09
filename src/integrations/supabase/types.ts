@@ -47,6 +47,7 @@ export type Database = {
           relevance: number | null
           rewrite_direct: string | null
           rewrite_friendly: string | null
+          subject_line_input: string | null
           tone: number | null
           user_id: string
         }
@@ -64,6 +65,7 @@ export type Database = {
           relevance?: number | null
           rewrite_direct?: string | null
           rewrite_friendly?: string | null
+          subject_line_input?: string | null
           tone?: number | null
           user_id?: string
         }
@@ -81,6 +83,7 @@ export type Database = {
           relevance?: number | null
           rewrite_direct?: string | null
           rewrite_friendly?: string | null
+          subject_line_input?: string | null
           tone?: number | null
           user_id?: string
         }

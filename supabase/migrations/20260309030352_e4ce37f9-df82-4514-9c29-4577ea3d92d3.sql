@@ -1,0 +1,1 @@
+ALTER TABLE public.grade_results ADD COLUMN subject_line_input text DEFAULT NULL;
