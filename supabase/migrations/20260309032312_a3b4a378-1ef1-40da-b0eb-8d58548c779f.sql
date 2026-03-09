@@ -1,0 +1,1 @@
+ALTER TABLE public.grade_results ADD COLUMN credits_used integer NOT NULL DEFAULT 1;
