@@ -139,6 +139,7 @@ const History = () => {
             rewrite_friendly: r.rewrite_friendly || "",
             hooks: r.hooks || [],
             subject_line_input: r.subject_line_input || null,
+            subject_line_rewrites: r.subject_line_rewrites ? (() => { try { return JSON.parse(r.subject_line_rewrites); } catch { return null; } })() : null,
             credits_used: r.credits_used ?? 1,
           }))
         );
