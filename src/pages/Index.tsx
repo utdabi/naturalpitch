@@ -226,13 +226,7 @@ const Index = () => {
       setScorecard(result);
       
       // Refresh credits from server (credits were deducted server-side)
-      const { data: creditData } = await supabase
-        .from("user_credits")
-        .select("balance")
-        .single();
-      if (creditData) {
-        // Update will happen via context refresh
-      }
+      await refreshCredits();
 
       // Save to database
       await supabase.from("grade_results").insert({
