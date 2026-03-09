@@ -131,7 +131,7 @@ serve(async (req) => {
 The target person's background is provided below. Use it to write an opening hook that references something SPECIFIC from their background — a project, a post, a career transition, or a stated goal. The hook must feel like the sender actually read their profile, not like a template.
 
 <TARGET_CONTEXT>
-${deep_context}
+${sanitizedContext}
 </TARGET_CONTEXT>
 
 For the Direct and Friendly rewrites, the first sentence must reference something specific from the TARGET_CONTEXT. Never use generic openers like 'I've been following your work' when specific context is available.`;
