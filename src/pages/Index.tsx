@@ -341,6 +341,9 @@ const Index = () => {
         rewrite_friendly: result.rewrite_friendly,
         hooks: result.hooks,
         subject_line_input: trimmedSubject,
+        subject_line_rewrites: result.subject_line?.options?.length
+          ? JSON.stringify(result.subject_line.options)
+          : null,
       });
     } catch (e: any) {
       console.error("Grading failed:", e);
