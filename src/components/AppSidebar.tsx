@@ -94,7 +94,7 @@ export function AppSidebar() {
       <Sidebar collapsible="none" className="border-r-0">
         <SidebarHeader className="px-5 py-5">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="NaturalPitch" className="h-6 w-6" />
+            <img src={logo} alt="NaturalPitch" className="h-6 w-6 mix-blend-screen" />
             <span className="text-xl font-bold italic text-sidebar-foreground tracking-tight">
               NaturalPitch
             </span>
