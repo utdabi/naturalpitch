@@ -13,6 +13,37 @@ serve(async (req) => {
   }
 
   try {
+    // ==========================================
+    // AUTHENTICATION CHECK - Required for all requests
+    // ==========================================
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    // Validate the JWT and get user claims
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getUser(token);
+    
+    if (claimsError || !claimsData?.user) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized" }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const userId = claimsData.user.id;
+
+    // Parse request body
     const { message, persona, deep_context } = await req.json();
 
     if (!message || !persona) {
@@ -22,12 +53,43 @@ serve(async (req) => {
       );
     }
 
+    // ==========================================
+    // CREDIT CHECK - Server-side enforcement
+    // ==========================================
+    const hasDeepContext = typeof deep_context === "string" && deep_context.trim().length > 0;
+    const creditCost = hasDeepContext ? 2 : 1;
+
+    // Use service role to call the deduct_credits function
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    const { data: deductResult, error: deductError } = await adminClient.rpc("deduct_credits", {
+      p_user_id: userId,
+      p_amount: creditCost,
+    });
+
+    if (deductError) {
+      console.error("Credit deduction error:", deductError);
+      return new Response(
+        JSON.stringify({ error: "Failed to process credits" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (deductResult !== true) {
+      return new Response(
+        JSON.stringify({ error: "Insufficient credits", code: "INSUFFICIENT_CREDITS" }),
+        { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // ==========================================
+    // AI GRADING LOGIC
+    // ==========================================
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
-
-    const hasDeepContext = typeof deep_context === "string" && deep_context.trim().length > 0;
 
     let deepContextBlock = "";
     if (hasDeepContext) {
@@ -45,58 +107,50 @@ For the Direct and Friendly rewrites, the first sentence must reference somethin
     // Voice calibration & sender background: fetch data for the authenticated user
     let voiceCalibrationBlock = "";
     let senderBackgroundBlock = "";
-    const authHeader = req.headers.get("authorization");
-    if (authHeader) {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-        global: { headers: { Authorization: authHeader } },
-      });
 
-      // Fetch voice examples and sender background in parallel
-      const [voiceResult, profileResult] = await Promise.all([
-        supabase
-          .from("outcome_logs")
-          .select("grade_result_id, grade_results!inner(rewrite_direct)")
-          .in("outcome", ["REPLIED", "BOOKED"])
-          .order("created_at", { ascending: false })
-          .limit(3),
-        supabase
-          .from("profiles")
-          .select("user_background")
-          .single(),
-      ]);
+    // Fetch voice examples and sender background in parallel
+    const [voiceResult, profileResult] = await Promise.all([
+      supabase
+        .from("outcome_logs")
+        .select("grade_result_id, grade_results!inner(rewrite_direct)")
+        .in("outcome", ["REPLIED", "BOOKED"])
+        .order("created_at", { ascending: false })
+        .limit(3),
+      supabase
+        .from("profiles")
+        .select("user_background")
+        .single(),
+    ]);
 
-      // Voice calibration
-      const voiceRows = voiceResult.data;
-      if (voiceRows && voiceRows.length > 0) {
-        const examples = voiceRows
-          .map((r: any) => r.grade_results?.rewrite_direct)
-          .filter(Boolean)
-          .join("\n\n");
+    // Voice calibration
+    const voiceRows = voiceResult.data;
+    if (voiceRows && voiceRows.length > 0) {
+      const examples = voiceRows
+        .map((r: any) => r.grade_results?.rewrite_direct)
+        .filter(Boolean)
+        .join("\n\n");
 
-        if (examples.length > 0) {
-          voiceCalibrationBlock = `
+      if (examples.length > 0) {
+        voiceCalibrationBlock = `
 
 VOICE CALIBRATION: The user has sent messages that received positive responses. Match the tone, vocabulary, and sentence length of these successful examples. Do not copy them — use them only as stylistic reference.
 
 <VOICE_EXAMPLES>
 ${examples}
 </VOICE_EXAMPLES>`;
-        }
       }
+    }
 
-      // Sender background
-      const userBackground = profileResult.data?.user_background;
-      if (typeof userBackground === "string" && userBackground.trim().length > 0) {
-        senderBackgroundBlock = `
+    // Sender background
+    const userBackground = profileResult.data?.user_background;
+    if (typeof userBackground === "string" && userBackground.trim().length > 0) {
+      senderBackgroundBlock = `
 
 SENDER CONTEXT: The person sending this message has the following background. Reference specific credentials naturally when they strengthen the message — do not list them all.
 
 <SENDER_BACKGROUND>
 ${userBackground}
 </SENDER_BACKGROUND>`;
-      }
     }
 
     const systemPrompt = `You are an outreach coach. Grade the following LinkedIn message for the persona ${persona}. Return valid JSON only with this exact structure:
