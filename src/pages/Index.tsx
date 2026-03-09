@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +24,13 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCredits } from "@/contexts/CreditContext";
 
+interface SubjectLineScore {
+  curiosity: number;
+  specificity: number;
+  length: number;
+  options: string[];
+}
+
 interface Scorecard {
   overall: number;
   clarity: number;
@@ -34,6 +42,7 @@ interface Scorecard {
   rewrite_direct: string;
   rewrite_friendly: string;
   hooks: string[];
+  subject_line?: SubjectLineScore;
 }
 
 function getBarColor(score: number, max: number) {
@@ -66,6 +75,15 @@ function ScoreBar({ name, score, max, color }: { name: string; score: number; ma
   );
 }
 
+function SubjectLineBadge({ score }: { score: SubjectLineScore }) {
+  const avg = Math.round((score.curiosity + score.specificity + score.length) / 3);
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+      Subject: {avg}/10
+    </span>
+  );
+}
+
 function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepContext: boolean }) {
   const copyText = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -90,10 +108,30 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
       <div className="flex items-center gap-4">
         <span className="text-7xl font-bold text-foreground leading-none">{data.overall}</span>
         <div>
-          <div className="text-lg font-semibold text-foreground">Overall Score</div>
+          <div className="flex items-center gap-2">
+            <span className="text-lg font-semibold text-foreground">Overall Score</span>
+            {data.subject_line && <SubjectLineBadge score={data.subject_line} />}
+          </div>
           <div className="text-sm text-muted-foreground">{getLabel(data.overall)}</div>
         </div>
       </div>
+
+      {data.subject_line && (
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="rounded-md bg-muted p-2 text-center">
+            <div className="text-muted-foreground">Curiosity</div>
+            <div className="font-semibold text-foreground">{data.subject_line.curiosity}/10</div>
+          </div>
+          <div className="rounded-md bg-muted p-2 text-center">
+            <div className="text-muted-foreground">Specificity</div>
+            <div className="font-semibold text-foreground">{data.subject_line.specificity}/10</div>
+          </div>
+          <div className="rounded-md bg-muted p-2 text-center">
+            <div className="text-muted-foreground">Length</div>
+            <div className="font-semibold text-foreground">{data.subject_line.length}/10</div>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2.5">
         {subscores.map((s) => (
@@ -127,6 +165,17 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
         </div>
       </div>
 
+      {data.subject_line && data.subject_line.options.length > 0 && (
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h4 className="font-semibold text-sm text-foreground mb-2">Subject Line Options</h4>
+          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+            {data.subject_line.options.map((opt, i) => (
+              <li key={i}>{opt}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="rounded-lg border border-border bg-card p-4">
         <h4 className="font-semibold text-sm text-foreground mb-2">Alternative Openers</h4>
         <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
@@ -154,6 +203,7 @@ const Index = () => {
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
   const [message, setMessage] = useState("");
+  const [subjectLine, setSubjectLine] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [injectionError, setInjectionError] = useState<string | null>(null);
   const [deepContextOn, setDeepContextOn] = useState(false);
@@ -197,6 +247,7 @@ const Index = () => {
           message,
           persona,
           deep_context: deepContextOn ? deepContext : null,
+          subject_line: subjectLine.trim() || null,
         },
       });
 
@@ -302,6 +353,16 @@ const Index = () => {
                 className="flex-[2] min-h-0 bg-card border-border border resize-none text-foreground placeholder:text-muted-foreground"
               />
             )}
+
+            <div>
+              <label className="text-sm font-semibold text-foreground mb-2 block">Subject Line (optional)</label>
+              <Input
+                value={subjectLine}
+                onChange={(e) => setSubjectLine(e.target.value)}
+                placeholder="e.g. Quick question about your AI project"
+                className="bg-card border-border"
+              />
+            </div>
 
             <Textarea
               id="tour-message"
