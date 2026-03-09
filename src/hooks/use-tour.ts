@@ -28,7 +28,7 @@ const steps = [
     element: "#tour-deep-context",
     popover: {
       title: "Deep Context",
-      description: "Add their LinkedIn for a personalised opener",
+      description: "Add recipient profile highlight for a personalized opener",
     },
   },
   {
