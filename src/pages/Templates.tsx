@@ -53,8 +53,8 @@ const Templates = () => {
     <div className="h-screen overflow-auto p-8">
       <div className="flex items-baseline justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Saved Templates</h1>
-          <p className="text-sm text-muted-foreground">Your personal playbook of proven messages</p>
+          <h1 className="text-2xl font-bold text-foreground">Message Templates</h1>
+          <p className="text-sm text-muted-foreground">Start with a proven framework or save your own best-performing messages as reusable templates.</p>
         </div>
         <span className="text-sm text-muted-foreground">{templates.length} templates saved</span>
       </div>
