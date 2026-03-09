@@ -89,7 +89,7 @@ serve(async (req) => {
     // ==========================================
     // CREDIT CHECK - Server-side enforcement
     // ==========================================
-    const hasDeepContext = typeof deep_context === "string" && deep_context.trim().length > 0;
+    const hasDeepContext = sanitizedContext.length > 0;
     const creditCost = hasDeepContext ? 2 : 1;
 
     // Use service role to call the deduct_credits function
