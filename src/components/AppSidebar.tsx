@@ -132,7 +132,7 @@ export function AppSidebar() {
 
         <SidebarFooter className="px-4 pb-4 items-center">
           <span className="inline-block rounded-full bg-[hsl(var(--sidebar-primary))] px-4 py-1.5 text-sm font-semibold text-white">
-            {credits} Credit{credits !== 1 ? "s" : ""}
+            {credits} Credit{credits !== 1 ? "s" : ""} Remaining
           </span>
           <Settings
             id="tour-gear"
