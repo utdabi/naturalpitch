@@ -190,6 +190,7 @@ const History = () => {
               <th className="pb-3 font-medium">Date</th>
               <th className="pb-3 font-medium">Persona</th>
               <th className="pb-3 font-medium">Score</th>
+              <th className="pb-3 font-medium">Credits</th>
               <th className="pb-3 font-medium">Outcome</th>
               <th className="pb-3 w-8"></th>
             </tr>
@@ -217,6 +218,9 @@ const History = () => {
                   }`}>
                     {row.score}
                   </span>
+                </td>
+                <td className="py-4 text-center">
+                  <span className="text-sm text-muted-foreground">{row.credits_used}</span>
                 </td>
                 <td className="py-4" onClick={(e) => e.stopPropagation()}>
                   <Select value={row.outcome} onValueChange={(v) => updateOutcome(row.id, v as Outcome)}>
