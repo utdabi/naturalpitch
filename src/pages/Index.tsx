@@ -394,7 +394,7 @@ const Index = () => {
               <Textarea
                 value={deepContext}
                 onChange={(e) => setDeepContext(e.target.value)}
-                placeholder="Paste their LinkedIn About section, a recent post, or their job description here..."
+                placeholder="Paste recipient's LinkedIn About section, a recent post, or their job description here..."
                 className="flex-[2] min-h-0 bg-card border-border border resize-none text-foreground placeholder:text-muted-foreground"
               />
             )}
