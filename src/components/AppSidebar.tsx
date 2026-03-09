@@ -139,12 +139,6 @@ export function AppSidebar() {
             className="h-5 w-5 text-sidebar-foreground/60 cursor-pointer hover:text-sidebar-foreground transition-colors"
             onClick={openBackgroundModal}
           />
-          <button
-            onClick={startTour}
-            className="text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors"
-          >
-            Tour
-          </button>
           <Popover>
             <PopoverTrigger asChild>
               <div className="h-9 w-9 rounded-full bg-sidebar-accent overflow-hidden flex items-center justify-center cursor-pointer hover:ring-2 hover:ring-sidebar-ring transition-all">
