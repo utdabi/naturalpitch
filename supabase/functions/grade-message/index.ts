@@ -46,12 +46,45 @@ serve(async (req) => {
     // Parse request body
     const { message, persona, deep_context } = await req.json();
 
+    // ==========================================
+    // INPUT VALIDATION - Security enforcement
+    // ==========================================
+    const MAX_MESSAGE = 5000;
+    const MAX_CONTEXT = 3000;
+    const VALID_PERSONAS = ["HR", "Founder", "Hiring Manager", "Peer", "Investor"];
+
     if (!message || !persona) {
       return new Response(
         JSON.stringify({ error: "message and persona are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
+    if (typeof message !== "string" || message.length > MAX_MESSAGE) {
+      return new Response(
+        JSON.stringify({ error: "Message too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (!VALID_PERSONAS.includes(persona)) {
+      return new Response(
+        JSON.stringify({ error: "Invalid persona" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (deep_context && (typeof deep_context !== "string" || deep_context.length > MAX_CONTEXT)) {
+      return new Response(
+        JSON.stringify({ error: "Context too long" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Sanitize deep_context by stripping XML-like tags to reduce prompt injection surface
+    const sanitizedContext = deep_context
+      ? deep_context.replace(/<[^>]*>/g, "").trim()
+      : "";
 
     // ==========================================
     // CREDIT CHECK - Server-side enforcement
@@ -237,7 +270,7 @@ PUNCTUATION RULES — strictly enforced:
   } catch (e) {
     console.error("grade-message error:", e);
     return new Response(
-      JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }),
+      JSON.stringify({ error: "An unexpected error occurred. Please try again." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
