@@ -40,6 +40,9 @@ export function AppSidebar() {
   const { user, signOut } = useAuth();
   const { credits } = useCredits();
   const { startTour } = useTour();
+
+  const MAX_BACKGROUND = 2000;
+
   const [initial, setInitial] = useState("U");
   const [showBackground, setShowBackground] = useState(false);
   const [background, setBackground] = useState("");
@@ -70,16 +73,24 @@ export function AppSidebar() {
       .select("user_background")
       .eq("user_id", user.id)
       .single();
-    if (data?.user_background) setBackground(data.user_background);
+    if (data?.user_background) setBackground(String(data.user_background).slice(0, MAX_BACKGROUND));
   };
 
   const saveBackground = async () => {
     if (!user) return;
     setSaving(true);
+
+    const sanitized = background
+      .replace(/<[^>]*>/g, "")
+      .replace(/```/g, "")
+      .trim()
+      .slice(0, MAX_BACKGROUND);
+
     const { error } = await supabase
       .from("profiles")
-      .update({ user_background: background } as any)
+      .update({ user_background: sanitized } as any)
       .eq("user_id", user.id);
+
     setSaving(false);
     if (error) {
       toast({ title: "Failed to save", variant: "destructive" });
@@ -88,6 +99,7 @@ export function AppSidebar() {
       setShowBackground(false);
     }
   };
+
 
   return (
     <>
