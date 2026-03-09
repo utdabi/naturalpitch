@@ -23,26 +23,26 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   const [credits, setCredits] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchCredits = async () => {
     if (!user) {
       setCredits(0);
       setLoading(false);
       return;
     }
 
-    const fetchCredits = async () => {
-      const { data, error } = await supabase
-        .from("user_credits")
-        .select("balance")
-        .eq("user_id", user.id)
-        .single();
+    const { data, error } = await supabase
+      .from("user_credits")
+      .select("balance")
+      .eq("user_id", user.id)
+      .single();
 
-      if (!error && data) {
-        setCredits(data.balance);
-      }
-      setLoading(false);
-    };
+    if (!error && data) {
+      setCredits(data.balance);
+    }
+    setLoading(false);
+  };
 
+  useEffect(() => {
     fetchCredits();
   }, [user]);
 
