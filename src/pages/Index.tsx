@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AlertTriangle, ClipboardCheck, Compass, Copy, Flag, Info, Loader2 } from "lucide-react";
+import { ScoreBubbleChart } from "@/components/ScoreBubbleChart";
 import { useTour } from "@/hooks/use-tour";
 import {
   Select,
