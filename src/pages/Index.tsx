@@ -134,11 +134,7 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
         </div>
       )}
 
-      <div className="space-y-2.5">
-        {subscores.map((s) => (
-          <ScoreBar key={s.name} {...s} color={getBarColor(s.score, s.max)} />
-        ))}
-      </div>
+      <ScoreBubbleChart subscores={subscores} />
 
       <div className="flex gap-2 flex-wrap">
         {data.red_flags.map((f) => (
