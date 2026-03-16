@@ -193,6 +193,14 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
   );
 }
 
+const intentOptions: Record<string, string[]> = {
+  "Recruiter": ["Job Application Follow-up", "Get Referred Internally", "Explore Openings"],
+  "Hiring Manager": ["Express Interest in a Role", "Get on Their Radar", "Ask for a Referral"],
+  "Senior Leader / Executive": ["Ask for Advice / Mentorship", "Request an Intro Call", "Share a Shared Interest"],
+  "Founder / CEO": ["Explore Job Opportunities", "Ask for Mentorship", "Discuss a Partnership"],
+  "Investor": ["Share My Work / Portfolio", "Seek Advice on a Career Move", "Request an Intro"],
+};
+
 const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -200,6 +208,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
+  const [intent, setIntent] = useState("");
   const [message, setMessage] = useState("");
   const [subjectLine, setSubjectLine] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
@@ -368,7 +377,7 @@ const Index = () => {
           <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div>
               <label className="text-sm font-semibold text-foreground mb-2 block">Recipient</label>
-              <Select value={persona} onValueChange={setPersona}>
+              <Select value={persona} onValueChange={(val) => { setPersona(val); setIntent(""); }}>
                 <SelectTrigger id="tour-persona" className="w-full bg-card border-border">
                   <SelectValue placeholder="Select recipient type..." />
                 </SelectTrigger>
@@ -381,6 +390,22 @@ const Index = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {persona && (
+              <div>
+                <label className="text-sm font-semibold text-foreground mb-2 block">Intent</label>
+                <Select value={intent} onValueChange={setIntent}>
+                  <SelectTrigger className="w-full bg-card border-border">
+                    <SelectValue placeholder="What's the goal of your message?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {intentOptions[persona]?.map((opt) => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div id="tour-deep-context" className="flex items-center gap-2">
               <Switch checked={deepContextOn} onCheckedChange={setDeepContextOn} />
