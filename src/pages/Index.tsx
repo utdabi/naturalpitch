@@ -134,7 +134,7 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
         </div>
       )}
 
-      <ScoreBubbleChart subscores={subscores} />
+      <ScoreRadarChart subscores={subscores} />
 
       <div className="flex gap-2 flex-wrap">
         {data.red_flags.map((f) => (
