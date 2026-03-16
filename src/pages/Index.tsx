@@ -377,7 +377,7 @@ const Index = () => {
           <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div>
               <label className="text-sm font-semibold text-foreground mb-2 block">Recipient</label>
-              <Select value={persona} onValueChange={setPersona}>
+              <Select value={persona} onValueChange={(val) => { setPersona(val); setIntent(""); }}>
                 <SelectTrigger id="tour-persona" className="w-full bg-card border-border">
                   <SelectValue placeholder="Select recipient type..." />
                 </SelectTrigger>
@@ -390,6 +390,22 @@ const Index = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {persona && (
+              <div>
+                <label className="text-sm font-semibold text-foreground mb-2 block">Intent</label>
+                <Select value={intent} onValueChange={setIntent}>
+                  <SelectTrigger className="w-full bg-card border-border">
+                    <SelectValue placeholder="What's the goal of your message?" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {intentOptions[persona]?.map((opt) => (
+                      <SelectItem key={opt} value={opt}>{opt}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div id="tour-deep-context" className="flex items-center gap-2">
               <Switch checked={deepContextOn} onCheckedChange={setDeepContextOn} />
