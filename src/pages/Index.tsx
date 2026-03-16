@@ -193,6 +193,14 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
   );
 }
 
+const intentOptions: Record<string, string[]> = {
+  "Recruiter": ["Job Application Follow-up", "Get Referred Internally", "Explore Openings"],
+  "Hiring Manager": ["Express Interest in a Role", "Get on Their Radar", "Ask for a Referral"],
+  "Senior Leader / Executive": ["Ask for Advice / Mentorship", "Request an Intro Call", "Share a Shared Interest"],
+  "Founder / CEO": ["Explore Job Opportunities", "Ask for Mentorship", "Discuss a Partnership"],
+  "Investor": ["Share My Work / Portfolio", "Seek Advice on a Career Move", "Request an Intro"],
+};
+
 const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -200,6 +208,7 @@ const Index = () => {
   const [loading, setLoading] = useState(false);
   const [scorecard, setScorecard] = useState<Scorecard | null>(null);
   const [persona, setPersona] = useState("");
+  const [intent, setIntent] = useState("");
   const [message, setMessage] = useState("");
   const [subjectLine, setSubjectLine] = useState("");
   const [showUpgrade, setShowUpgrade] = useState(false);
