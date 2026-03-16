@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AlertTriangle, ClipboardCheck, Compass, Copy, Flag, Info, Loader2 } from "lucide-react";
-import { ScoreBubbleChart } from "@/components/ScoreBubbleChart";
+import { ScoreRadarChart } from "@/components/ScoreRadarChart";
 import { useTour } from "@/hooks/use-tour";
 import {
   Select,
@@ -134,7 +134,7 @@ function ScorecardPanel({ data, usedDeepContext }: { data: Scorecard; usedDeepCo
         </div>
       )}
 
-      <ScoreBubbleChart subscores={subscores} />
+      <ScoreRadarChart subscores={subscores} />
 
       <div className="flex gap-2 flex-wrap">
         {data.red_flags.map((f) => (
