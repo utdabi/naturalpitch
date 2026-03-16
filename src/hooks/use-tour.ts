@@ -13,7 +13,7 @@ const steps = [
   {
     element: "#tour-persona",
     popover: {
-      title: "Target Persona",
+      title: "Recipient",
       description: "Pick who you are writing to",
     },
   },

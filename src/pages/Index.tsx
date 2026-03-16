@@ -367,16 +367,16 @@ const Index = () => {
           <h1 className="text-2xl font-bold text-foreground mb-6">New Pitch</h1>
           <div className="flex flex-col flex-1 min-h-0 gap-4">
             <div>
-              <label className="text-sm font-semibold text-foreground mb-2 block">Target Persona</label>
+              <label className="text-sm font-semibold text-foreground mb-2 block">Recipient</label>
               <Select value={persona} onValueChange={setPersona}>
                 <SelectTrigger id="tour-persona" className="w-full bg-card border-border">
-                  <SelectValue placeholder="Select target (HR, Founder, Peer...)" />
+                  <SelectValue placeholder="Select recipient type..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="HR">HR</SelectItem>
+                  <SelectItem value="Recruiter">Recruiter</SelectItem>
                   <SelectItem value="Hiring Manager">Hiring Manager</SelectItem>
-                  <SelectItem value="Founder">Founder</SelectItem>
-                  <SelectItem value="Peer">Peer</SelectItem>
+                  <SelectItem value="Senior Leader / Executive">Senior Leader / Executive</SelectItem>
+                  <SelectItem value="Founder / CEO">Founder / CEO</SelectItem>
                   <SelectItem value="Investor">Investor</SelectItem>
                 </SelectContent>
               </Select>
